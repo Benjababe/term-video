@@ -1,9 +1,25 @@
-#include <iostream>
+#ifndef INCL_TERMINAL_HEADER
+#define INCL_TERMINAL_HEADER
 #include <terminal.hpp>
+#endif
 
-void set_terminal_title(char *title)
+void set_terminal_title(const char *title)
 {
     std::cout << "\033]0;" << title << "\007";
+}
+
+void hide_terminal_cursor()
+{
+#if defined(_WIN32)
+    HANDLE writeHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO cursorInfo;
+
+    GetConsoleCursorInfo(writeHandle, &cursorInfo);
+    cursorInfo.bVisible = false;
+    SetConsoleCursorInfo(writeHandle, &cursorInfo);
+#elif defined(__linux__)
+    std::cout << "\033[?25l";
+#endif
 }
 
 // https://stackoverflow.com/questions/23369503/get-size-of-terminal-window-rows-columns/62485211#62485211
@@ -22,31 +38,9 @@ void get_terminal_size(int &width, int &height)
 #endif
 }
 
-// https://stackoverflow.com/questions/5866529/how-do-we-clear-the-console-in-assembly/5866648#5866648
-void clear_terminal(char fill = ' ')
+void init_terminal_col(bool print_colour)
 {
-    COORD tl = {0, 0};
-    CONSOLE_SCREEN_BUFFER_INFO s;
-    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
-    GetConsoleScreenBufferInfo(console, &s);
-    DWORD written, cells = s.dwSize.X * s.dwSize.Y;
-    FillConsoleOutputCharacter(console, fill, cells, tl, &written);
-    FillConsoleOutputAttribute(console, s.wAttributes, cells, tl, &written);
-    SetConsoleCursorPosition(console, tl);
-}
-
-std::string get_char_col(unsigned char r, unsigned char g, unsigned char b, char c)
-{
-    if (c != ' ')
-    {
-        char str_out[24];
-        sprintf_s(str_out, "\033[38;2;%d;%d;%dm%c", r, g, b, c);
-        return std::string(str_out);
-    }
-    else
-    {
-        std::string str_out = "";
-        str_out.push_back(c);
-        return str_out;
-    }
+    // white bg / black fg for grayscale, inverse for colour printing
+    std::cout << ((print_colour) ? "\033[38;2;255;255;255m" : "\033[38;2;0;0;0m");
+    std::cout << ((print_colour) ? "\033[48;2;0;0;0m" : "\033[48;2;255;255;255m");
 }

@@ -8,10 +8,16 @@
 
 #ifndef INCL_STD_HEADERS
 #define INCL_STD_HEADERS
+#include <algorithm>
+#include <chrono>
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <thread>
+#include <vector>
 #endif
 
-void set_terminal_title(char *);
+void set_terminal_title(const char *);
+void hide_terminal_cursor();
 void get_terminal_size(int &, int &);
-void clear_terminal(char);
-std::string get_char_col(unsigned char, unsigned char, unsigned char, char);
+void init_terminal_col(bool);

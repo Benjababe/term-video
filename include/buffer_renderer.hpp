@@ -1,0 +1,60 @@
+#ifndef INCL_STD_HEADERS
+#define INCL_STD_HEADERS
+#include <algorithm>
+#include <chrono>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <thread>
+#include <vector>
+#endif
+
+#ifndef INCL_OPTIMISER_HEADER
+#define INCL_OPTIMISER_HEADER
+#include <optimiser.hpp>
+#endif
+
+#ifndef INCL_RENDERER_HEADER
+#define INCL_RENDERER_HEADER
+#include <renderer.hpp>
+#endif
+
+#ifndef INCL_TERMINAL_HEADER
+#define INCL_TERMINAL_HEADER
+#include <terminal.hpp>
+#endif
+
+#ifndef INCL_PERFCHECKER_HEADER
+#define INCL_PERFCHECKER_HEADER
+#include <performance_checker.hpp>
+#endif
+
+#ifndef INCL_OPENCV_HEADER
+#define INCL_OPENCV_HEADER
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/utils/logger.hpp>
+#endif
+
+typedef unsigned long ULONG;
+typedef unsigned char uchar;
+typedef unsigned short WORD;
+
+class BufferRenderer : public Renderer
+{
+public:
+    BufferRenderer(int, bool, bool, std::string, std::string);
+    void init_renderer();
+    void start_renderer();
+
+private:
+    void frame_to_ascii(uchar *, const int, const int, const int);
+    void video_to_ascii(cv::VideoCapture);
+    void write_to_buffer(const int, const int, uchar, WORD);
+
+#if defined(_WIN32)
+    CHAR_INFO *buffer;
+    HANDLE writeHandle;
+    COORD buffer_size;
+    SMALL_RECT console_write_area;
+#endif
+};
