@@ -23,3 +23,9 @@ For coloured line printing, ANSI colour codes are used to switch the foreground 
 
 ## Coloured Buffer Printing Limitation
 With Coloured buffer printing, as far as I know, each pixel will be limited to only 16 colours specified [here for Windows](https://learn.microsoft.com/en-us/windows/console/char-info-str) and I'm still planning on using ncurses for Linux, just haven't gotten to it yet.
+
+## Future Implementations
+
+- Linux support for buffer rendering
+- Add Audio playback together with video output
+- Possibly find a way to include RGB values in buffer rendering
