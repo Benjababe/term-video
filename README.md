@@ -12,6 +12,19 @@ Currently has the following options:
 
 [Coloured buffer printing sample](https://www.youtube.com/watch?v=KUX2ZvlXs1w)
 
+## Prerequisites
+CMake version >= 3.0 is required as it's what I have installed. Versions below are untested, feel free to edit CMakeLists.txt
+
+For libraries, OpenCV is required. 4.6 is what I have installed but older versions probably work with this project.
+
+## Building The Project
+From project root, run
+```
+cmake -S "." -B "./out/build";
+cmake --build "./out/build" --config Debug;
+```
+and the executable should be in `out/build` or `out/build/Debug/`
+
 ## Coloured Printing Optimisation
 For coloured line printing, ANSI colour codes are used to switch the foreground text colours which may cause long print times if many different colours are used in 1 frame which leads to flickering. For optimisation, 2 arguments can be used: 
 - `-s | --skip-frames` 
