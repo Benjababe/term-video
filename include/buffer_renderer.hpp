@@ -35,26 +35,37 @@
 #include <opencv2/core/utils/logger.hpp>
 #endif
 
+#if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN
+#include <windows.h>
+#elif defined(__linux__)
+#include <sys/ioctl.h>
+#endif
+
 typedef unsigned long ULONG;
 typedef unsigned char uchar;
 typedef unsigned short WORD;
 
-class BufferRenderer : public Renderer
+namespace Vid2ASCII
 {
-public:
-    BufferRenderer(int, bool, bool, std::string, std::string);
-    void init_renderer();
-    void start_renderer();
+    class BufferRenderer : public Renderer
+    {
+    public:
+        BufferRenderer(int, bool, bool, std::string, std::string);
+        void init_renderer();
+        void start_renderer();
 
-private:
-    void frame_to_ascii(uchar *, const int, const int, const int);
-    void video_to_ascii(cv::VideoCapture);
-    void write_to_buffer(const int, const int, uchar, WORD);
+    private:
+        void frame_to_ascii(uchar *, const int, const int, const int);
+        void video_to_ascii(cv::VideoCapture);
+        void write_to_buffer(const int, const int, uchar, WORD);
 
 #if defined(_WIN32)
-    CHAR_INFO *buffer;
-    HANDLE writeHandle;
-    COORD buffer_size;
-    SMALL_RECT console_write_area;
+        CHAR_INFO *buffer;
+        HANDLE writeHandle;
+        COORD buffer_size;
+        SMALL_RECT console_write_area;
 #endif
-};
+    };
+}

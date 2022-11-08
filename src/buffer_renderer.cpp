@@ -3,8 +3,6 @@
 #include <buffer_renderer.hpp>
 #endif
 
-using namespace cv;
-
 /**
  * @brief Construct a new BufferRenderer:: BufferRenderer object
  *
@@ -16,7 +14,7 @@ using namespace cv;
  * @param filename Video file to be converted into ASCII
  * @param char_set Character set to be used for ASCII conversion
  */
-BufferRenderer::BufferRenderer(
+Vid2ASCII::BufferRenderer::BufferRenderer(
     int frames_to_skip,
     bool print_colour,
     bool force_aspect,
@@ -41,7 +39,7 @@ BufferRenderer::BufferRenderer(
  * @param height Height of the frame
  * @param channels No of colour channels for each pixel
  */
-void BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int width, const int height, const int channels)
+void Vid2ASCII::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int width, const int height, const int channels)
 {
     this->perfChecker.start_frame_time();
 
@@ -87,14 +85,14 @@ void BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int width, const 
  *
  * @param cap Video file to be converted
  */
-void BufferRenderer::video_to_ascii(cv::VideoCapture cap)
+void Vid2ASCII::BufferRenderer::video_to_ascii(cv::VideoCapture cap)
 {
-    double fps = cap.get(CAP_PROP_FPS);
+    double fps = cap.get(cv::CAP_PROP_FPS);
     int64 frametime_ms = (int64)(1000 / fps) * (1 + this->frames_to_skip);
 
     while (1)
     {
-        Mat frame;
+        cv::Mat frame;
 
         for (int i = 0; i < (this->frames_to_skip + 1); i++)
             cap >> frame;
@@ -120,7 +118,7 @@ void BufferRenderer::video_to_ascii(cv::VideoCapture cap)
  * @brief Initialises values for the renderer
  *
  */
-void BufferRenderer::init_renderer()
+void Vid2ASCII::BufferRenderer::init_renderer()
 {
     set_terminal_title("Video to ASCII (Buffer)");
     hide_terminal_cursor();
@@ -145,16 +143,16 @@ void BufferRenderer::init_renderer()
     }
 #endif
 
-    utils::logging::setLogLevel(utils::logging::LogLevel::LOG_LEVEL_SILENT);
+    cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
 }
 
 /**
  * @brief Starts the video conversion and display
  *
  */
-void BufferRenderer::start_renderer()
+void Vid2ASCII::BufferRenderer::start_renderer()
 {
-    VideoCapture cap(this->filename);
+    cv::VideoCapture cap(this->filename);
     this->video_to_ascii(cap);
     cap.release();
 
@@ -164,7 +162,7 @@ void BufferRenderer::start_renderer()
 }
 
 #if defined(_WIN32)
-void BufferRenderer::write_to_buffer(const int row, const int col, uchar ascii, WORD attr)
+void Vid2ASCII::BufferRenderer::write_to_buffer(const int row, const int col, uchar ascii, WORD attr)
 {
     this->buffer[row * this->width + col].Char.AsciiChar = ascii;
     this->buffer[row * this->width + col].Attributes = attr;

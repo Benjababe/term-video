@@ -3,8 +3,8 @@
 #include <optimiser.hpp>
 #endif
 
-Optimiser::Optimiser() {}
-Optimiser::Optimiser(uchar col_threshold)
+Vid2ASCII::Optimiser::Optimiser() {}
+Vid2ASCII::Optimiser::Optimiser(uchar col_threshold)
 {
     this->set_colour_threshold(col_threshold);
     this->set_prev_colours(0, 0, 0);
@@ -17,7 +17,7 @@ Optimiser::Optimiser(uchar col_threshold)
  * @param g Greenness value (0-255)
  * @param b Blueness value (0-255)
  */
-void Optimiser::set_prev_colours(uchar r, uchar g, uchar b)
+void Vid2ASCII::Optimiser::set_prev_colours(uchar r, uchar g, uchar b)
 {
     this->prev_r = r;
     this->prev_g = g;
@@ -29,7 +29,7 @@ void Optimiser::set_prev_colours(uchar r, uchar g, uchar b)
  *
  * @param col_threshold Threshold value for each colour to check
  */
-void Optimiser::set_colour_threshold(uchar col_threshold)
+void Vid2ASCII::Optimiser::set_colour_threshold(uchar col_threshold)
 {
     this->col_threshold = col_threshold;
 }
@@ -44,7 +44,7 @@ void Optimiser::set_colour_threshold(uchar col_threshold)
  * @param c ASCII character to be printed
  * @return bool Whether to use ANSI colour coding
  */
-bool Optimiser::should_apply_ansi_col(uchar r, uchar g, uchar b, uchar c)
+bool Vid2ASCII::Optimiser::should_apply_ansi_col(uchar r, uchar g, uchar b, uchar c)
 {
     uchar diff_r = abs(this->prev_r - r);
     uchar diff_g = abs(this->prev_g - g);

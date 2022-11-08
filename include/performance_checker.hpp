@@ -15,19 +15,22 @@ typedef long long int64;
 typedef int64_t int64;
 #endif
 
-class PerformanceChecker
+namespace Vid2ASCII
 {
-public:
-    PerformanceChecker();
-    void start_frame_time();
-    void end_frame_time();
-    void add_wait_time(int64);
-    double get_avg_frame_time();
-    int64 get_avg_wait_time();
+    class PerformanceChecker
+    {
+    public:
+        PerformanceChecker();
+        void start_frame_time();
+        void end_frame_time();
+        void add_wait_time(int64);
+        double get_avg_frame_time();
+        int64 get_avg_wait_time();
 
-private:
-    int frame_count;
-    double frame_time_total;
-    int64 wait_time_total;
-    std::chrono::steady_clock::time_point start_time;
-};
+    private:
+        int frame_count;
+        double frame_time_total;
+        int64 wait_time_total;
+        std::chrono::steady_clock::time_point start_time;
+    };
+}

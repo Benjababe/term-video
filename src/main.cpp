@@ -105,7 +105,7 @@ int main(int argc, char **argv)
 
     if (use_buffer)
     {
-        BufferRenderer bRenderer(
+        Vid2ASCII::BufferRenderer bRenderer(
             frames_to_skip,
             print_colour,
             force_aspect,
@@ -116,7 +116,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        Renderer renderer(
+        Vid2ASCII::Renderer renderer(
             frames_to_skip,
             print_colour,
             force_aspect,

@@ -43,33 +43,36 @@
 typedef unsigned long ULONG;
 typedef unsigned char uchar;
 
-class Renderer
+namespace Vid2ASCII
 {
-public:
-    Renderer();
-    Renderer(int, bool, bool, uchar, std::string, std::string);
-    void init_renderer();
-    void start_renderer();
+    class Renderer
+    {
+    public:
+        Renderer();
+        Renderer(int, bool, bool, uchar, std::string, std::string);
+        void init_renderer();
+        void start_renderer();
 
-    Optimiser optimiser;
-    PerformanceChecker perfChecker;
+        Optimiser optimiser;
+        PerformanceChecker perfChecker;
 
-protected:
-    char pixel_to_ascii(uchar, uchar, uchar);
-    void frame_downscale(cv::Mat &);
-    void wait_for_frame(int64);
+    protected:
+        char pixel_to_ascii(uchar, uchar, uchar);
+        void frame_downscale(cv::Mat &);
+        void wait_for_frame(int64);
 
-    int frames_to_skip;
-    int width, height;
-    int padding_x, padding_y;
-    bool print_colour;
-    bool force_aspect;
-    uchar col_threshold;
-    uchar prev_r, prev_g, prev_b;
-    std::string filename, char_set;
-    std::chrono::steady_clock::time_point next_frame;
+        int frames_to_skip;
+        int width, height;
+        int padding_x, padding_y;
+        bool print_colour;
+        bool force_aspect;
+        uchar col_threshold;
+        uchar prev_r, prev_g, prev_b;
+        std::string filename, char_set;
+        std::chrono::steady_clock::time_point next_frame;
 
-private:
-    void frame_to_ascii(std::string &, uchar *, const int, const int, const int);
-    void video_to_ascii(cv::VideoCapture);
-};
+    private:
+        void frame_to_ascii(std::string &, uchar *, const int, const int, const int);
+        void video_to_ascii(cv::VideoCapture);
+    };
+}

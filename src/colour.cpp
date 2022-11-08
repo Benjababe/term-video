@@ -9,7 +9,7 @@
  * @param b Blueness value (0-255)
  * @return double Approximate luminance value between 0 & 255
  */
-uchar get_luminance_approximate(uchar r, uchar g, uchar b)
+uchar Vid2ASCII::get_luminance_approximate(uchar r, uchar g, uchar b)
 {
     double luminance = (0.2126 * r) + (0.7152 * g) + (0.0722 * b);
     return (uchar)luminance;
@@ -24,7 +24,7 @@ uchar get_luminance_approximate(uchar r, uchar g, uchar b)
  * @param b Blueness value (0-255)
  * @return WORD
  */
-WORD get_win32_col(uchar r, uchar g, uchar b)
+WORD Vid2ASCII::get_win32_col(uchar r, uchar g, uchar b)
 {
     WORD col = 0;
     uchar luminance = get_luminance_approximate(r, g, b);
@@ -47,7 +47,7 @@ WORD get_win32_col(uchar r, uchar g, uchar b)
  * @param c Character to be encoded
  * @return std::string ANSI colour encoded character
  */
-std::string get_char_ansi_col(uchar r, uchar g, uchar b, char c)
+std::string Vid2ASCII::get_char_ansi_col(uchar r, uchar g, uchar b, char c)
 {
     if (c != ' ')
     {

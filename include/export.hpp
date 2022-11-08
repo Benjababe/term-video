@@ -1,4 +1,7 @@
 #include <fstream>
 #include <string>
 
-void save_ascii_to_file(const std::string, const std::string);
+namespace Vid2ASCII
+{
+    void save_ascii_to_file(const std::string, const std::string);
+}

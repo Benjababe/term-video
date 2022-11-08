@@ -3,13 +3,11 @@
 #include <renderer.hpp>
 #endif
 
-using namespace cv;
-
 /**
  * @brief Default Renderer constructor
  *
  */
-Renderer::Renderer() {}
+Vid2ASCII::Renderer::Renderer() {}
 
 /**
  * @brief Construct a new Renderer:: Renderer object
@@ -22,7 +20,7 @@ Renderer::Renderer() {}
  * @param filename Video file to be converted into ASCII
  * @param char_set Character set to be used for ASCII conversion
  */
-Renderer::Renderer(
+Vid2ASCII::Renderer::Renderer(
     int frames_to_skip,
     bool print_colour,
     bool force_aspect,
@@ -51,7 +49,7 @@ Renderer::Renderer(
  * @param pixel_b Brightness of blue pixel, ranges 0-255
  * @return char Appropriate ASCII character for pixel
  */
-char Renderer::pixel_to_ascii(uchar pixel_r, uchar pixel_g, uchar pixel_b)
+char Vid2ASCII::Renderer::pixel_to_ascii(uchar pixel_r, uchar pixel_g, uchar pixel_b)
 {
     double luminance = get_luminance_approximate(pixel_r, pixel_g, pixel_b);
     double normalised_luminance = luminance / 255;
@@ -77,7 +75,12 @@ char Renderer::pixel_to_ascii(uchar pixel_r, uchar pixel_g, uchar pixel_b)
  * @param channels No of colour channels for each pixel
  * @return std::string
  */
-void Renderer::frame_to_ascii(std::string &ascii_output, uchar *frame_pixels, const int width, const int height, const int channels)
+void Vid2ASCII::Renderer::frame_to_ascii(
+    std::string &ascii_output,
+    uchar *frame_pixels,
+    const int width,
+    const int height,
+    const int channels)
 {
     ascii_output = "";
     this->perfChecker.start_frame_time();
@@ -123,7 +126,7 @@ void Renderer::frame_to_ascii(std::string &ascii_output, uchar *frame_pixels, co
  *
  * @param frame Frame to be downscaled & converted into ASCII
  */
-void Renderer::frame_downscale(Mat &frame)
+void Vid2ASCII::Renderer::frame_downscale(cv::Mat &frame)
 {
     const int max_width = this->width,
               max_height = this->height;
@@ -148,8 +151,8 @@ void Renderer::frame_downscale(Mat &frame)
 
     if (new_width != frame.cols && new_height != frame.rows)
     {
-        Mat resized_frame;
-        resize(frame, resized_frame, Size(new_width, new_height));
+        cv::Mat resized_frame;
+        cv::resize(frame, resized_frame, cv::Size(new_width, new_height));
         frame = resized_frame;
     }
 }
@@ -159,7 +162,7 @@ void Renderer::frame_downscale(Mat &frame)
  *
  * @param frametime_ms Time given for each frame in milliseconds
  */
-void Renderer::wait_for_frame(int64 frametime_ms)
+void Vid2ASCII::Renderer::wait_for_frame(int64 frametime_ms)
 {
     next_frame += std::chrono::milliseconds(frametime_ms);
     std::this_thread::sleep_until(next_frame);
@@ -170,14 +173,14 @@ void Renderer::wait_for_frame(int64 frametime_ms)
  *
  * @param cap Video file to be converted
  */
-void Renderer::video_to_ascii(VideoCapture cap)
+void Vid2ASCII::Renderer::video_to_ascii(cv::VideoCapture cap)
 {
-    double fps = cap.get(CAP_PROP_FPS);
+    double fps = cap.get(cv::CAP_PROP_FPS);
     int64 frametime_ms = (int64)(1000 / fps) * (1 + this->frames_to_skip);
 
     while (1)
     {
-        Mat frame;
+        cv::Mat frame;
 
         for (int i = 0; i < (this->frames_to_skip + 1); i++)
             cap >> frame;
@@ -206,22 +209,22 @@ void Renderer::video_to_ascii(VideoCapture cap)
  * @brief Initialises values for the renderer
  *
  */
-void Renderer::init_renderer()
+void Vid2ASCII::Renderer::init_renderer()
 {
     set_terminal_title("Video to ASCII");
     hide_terminal_cursor();
     get_terminal_size(this->width, this->height);
     init_terminal_col(this->print_colour);
-    utils::logging::setLogLevel(utils::logging::LogLevel::LOG_LEVEL_SILENT);
+    cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
 }
 
 /**
  * @brief Starts the video conversion and display
  *
  */
-void Renderer::start_renderer()
+void Vid2ASCII::Renderer::start_renderer()
 {
-    VideoCapture cap(this->filename);
+    cv::VideoCapture cap(this->filename);
     this->video_to_ascii(cap);
     cap.release();
 

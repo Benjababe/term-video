@@ -17,7 +17,10 @@
 #include <vector>
 #endif
 
-void set_terminal_title(const char *);
-void hide_terminal_cursor();
-void get_terminal_size(int &, int &);
-void init_terminal_col(bool);
+namespace Vid2ASCII
+{
+    void set_terminal_title(const char *);
+    void hide_terminal_cursor();
+    void get_terminal_size(int &, int &);
+    void init_terminal_col(bool);
+}

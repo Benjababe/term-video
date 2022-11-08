@@ -3,12 +3,12 @@
 #include <terminal.hpp>
 #endif
 
-void set_terminal_title(const char *title)
+void Vid2ASCII::set_terminal_title(const char *title)
 {
     std::cout << "\033]0;" << title << "\007";
 }
 
-void hide_terminal_cursor()
+void Vid2ASCII::hide_terminal_cursor()
 {
 #if defined(_WIN32)
     HANDLE writeHandle = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -23,7 +23,7 @@ void hide_terminal_cursor()
 }
 
 // https://stackoverflow.com/questions/23369503/get-size-of-terminal-window-rows-columns/62485211#62485211
-void get_terminal_size(int &width, int &height)
+void Vid2ASCII::get_terminal_size(int &width, int &height)
 {
 #if defined(_WIN32)
     CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -38,7 +38,7 @@ void get_terminal_size(int &width, int &height)
 #endif
 }
 
-void init_terminal_col(bool print_colour)
+void Vid2ASCII::init_terminal_col(bool print_colour)
 {
     // white bg / black fg for grayscale, inverse for colour printing
     std::cout << ((print_colour) ? "\033[38;2;255;255;255m" : "\033[38;2;0;0;0m");

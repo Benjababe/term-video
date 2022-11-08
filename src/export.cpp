@@ -9,7 +9,7 @@
  * @param filepath Relative path to save string
  * @param ascii ASCII string to be saved
  */
-void save_ascii_to_file(const std::string filepath, const std::string ascii)
+void Vid2ASCII::save_ascii_to_file(const std::string filepath, const std::string ascii)
 {
     std::ofstream file;
     file.open(filepath);

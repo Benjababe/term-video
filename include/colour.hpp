@@ -16,6 +16,9 @@
 typedef unsigned char uchar;
 typedef unsigned short WORD;
 
-uchar get_luminance_approximate(uchar, uchar, uchar);
-WORD get_win32_col(uchar, uchar, uchar);
-std::string get_char_ansi_col(uchar, uchar, uchar, char);
+namespace Vid2ASCII
+{
+    uchar get_luminance_approximate(uchar, uchar, uchar);
+    WORD get_win32_col(uchar, uchar, uchar);
+    std::string get_char_ansi_col(uchar, uchar, uchar, char);
+}
