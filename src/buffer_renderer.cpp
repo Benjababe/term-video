@@ -128,6 +128,7 @@ void Vid2ASCII::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int wi
                 attroff(COLOR_PAIR(col_index));
             }
         }
+        refresh();
 #endif
     }
 
@@ -166,7 +167,6 @@ void Vid2ASCII::BufferRenderer::video_to_ascii(cv::VideoCapture cap)
 
         // converts frame into ascii output & prints it out
         this->frame_to_ascii(frame.data, frame.cols, frame.rows, frame.channels());
-        refresh();
 
         // wait for next interval before processing
         this->wait_for_frame(frametime_ms);
