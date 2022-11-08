@@ -38,6 +38,32 @@ WORD Vid2ASCII::get_win32_col(uchar r, uchar g, uchar b)
 }
 #endif
 
+#if defined(__linux__)
+/**
+ * @brief Returns an index closest to the one set automatically
+ *
+ * @param r Redness value (0-255)
+ * @param g Greenness value (0-255)
+ * @param b Blueness value (0-255)
+ * @return int Index of the colour pair (0-255)
+ */
+int Vid2ASCII::get_ncurses_col_index(uchar r, uchar g, uchar b, short step)
+{
+    int divisions = step + 1;
+
+    int r_int = r * divisions,
+        g_int = g * divisions,
+        b_int = b * divisions;
+
+    int r_index = nearbyint(r_int / 255),
+        g_index = nearbyint(g_int / 255),
+        b_index = nearbyint(b_int / 255);
+
+    int ncurses_col_index = (r_index * divisions * divisions) + (g_index * divisions) + b_index;
+    return ncurses_col_index;
+}
+#endif
+
 /**
  * @brief Returns a char encoded with ANSI colour
  *

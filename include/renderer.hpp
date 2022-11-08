@@ -66,6 +66,7 @@ namespace Vid2ASCII
         int padding_x, padding_y;
         bool print_colour;
         bool force_aspect;
+        bool ready;
         uchar col_threshold;
         uchar prev_r, prev_g, prev_b;
         std::string filename, char_set;

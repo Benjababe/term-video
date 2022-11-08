@@ -39,6 +39,7 @@ Vid2ASCII::Renderer::Renderer(
     this->next_frame = std::chrono::steady_clock::now();
     this->optimiser = Optimiser(col_threshold);
     this->perfChecker = PerformanceChecker();
+    this->ready = false;
 }
 
 /**
@@ -216,6 +217,8 @@ void Vid2ASCII::Renderer::init_renderer()
     get_terminal_size(this->width, this->height);
     init_terminal_col(this->print_colour);
     cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
+
+    this->ready = true;
 }
 
 /**
@@ -224,6 +227,9 @@ void Vid2ASCII::Renderer::init_renderer()
  */
 void Vid2ASCII::Renderer::start_renderer()
 {
+    if (!this->ready)
+        return;
+
     cv::VideoCapture cap(this->filename);
     this->video_to_ascii(cap);
     cap.release();

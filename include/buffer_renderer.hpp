@@ -41,6 +41,7 @@
 #include <windows.h>
 #elif defined(__linux__)
 #include <sys/ioctl.h>
+#include <ncurses.h>
 #endif
 
 typedef unsigned long ULONG;
@@ -66,6 +67,11 @@ namespace Vid2ASCII
         HANDLE writeHandle;
         COORD buffer_size;
         SMALL_RECT console_write_area;
+#elif defined(__linux__)
+        void set_curses_colors();
+
+        // how many steps does each colour take in init_color
+        short color_step_no;
 #endif
     };
 }
