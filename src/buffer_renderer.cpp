@@ -18,6 +18,7 @@ Vid2ASCII::BufferRenderer::BufferRenderer(
     int frames_to_skip,
     bool print_colour,
     bool force_aspect,
+    bool force_avg_lumi,
     std::string filename,
     std::string char_set)
 {

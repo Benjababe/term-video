@@ -42,8 +42,11 @@
 
 int frames_to_skip = 0;
 unsigned char col_threshold = 0;
-bool print_colour = false, force_aspect = false, use_buffer = false;
-std::string filename, char_set, ascii_grayscale_chars = "@Saeosx=+:.` ", ascii_colour_chars = " `.*+xse@";
+bool print_colour = false, force_aspect = false, use_buffer = false, force_avg_lumi = false;
+std::string filename,
+    char_set,
+    ascii_grayscale_chars = "@&%QWNM0gB$#DR8mHXKAUbGOpV4d9h6PkqwSE2]ayjxY5Zoen[ult13If}C{iF|(7J)vTLs?z/*cr!+<>;=^,_:'-.` ",
+    ascii_colour_chars = " `.-':_,^=;><+!rc*/z?sLTv)J7(|Fi{C}fI31tlu[neoZ5Yxjya]2ESwqkP6h9d4VpOGbUAKXHm8RD#$Bg0MNWQ%&@";
 
 int main(int argc, char **argv)
 {
@@ -101,6 +104,11 @@ int main(int argc, char **argv)
         {
             use_buffer = true;
         }
+
+        else if (arg == "-alumi" || arg == "--avg-lumi")
+        {
+            force_avg_lumi = true;
+        }
     }
 
     if (use_buffer)
@@ -109,6 +117,7 @@ int main(int argc, char **argv)
             frames_to_skip,
             print_colour,
             force_aspect,
+            force_avg_lumi,
             filename,
             (print_colour) ? ascii_colour_chars : ascii_grayscale_chars);
         bRenderer.init_renderer();
@@ -120,6 +129,7 @@ int main(int argc, char **argv)
             frames_to_skip,
             print_colour,
             force_aspect,
+            force_avg_lumi,
             col_threshold,
             filename,
             (print_colour) ? ascii_colour_chars : ascii_grayscale_chars);

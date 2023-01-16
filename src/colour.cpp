@@ -7,11 +7,16 @@
  * @param r Redness value (0-255)
  * @param g Greenness value (0-255)
  * @param b Blueness value (0-255)
+ * @param force_avg_luminance Use the average of the RGB values instead of the relative luminance
  * @return double Approximate luminance value between 0 & 255
  */
-uchar Vid2ASCII::get_luminance_approximate(uchar r, uchar g, uchar b)
+uchar Vid2ASCII::get_luminance_approximate(uchar r, uchar g, uchar b, bool force_avg_luminance)
 {
-    double luminance = (0.2126 * r) + (0.7152 * g) + (0.0722 * b);
+    double r_mult = (force_avg_luminance) ? 1 / 3 : 0.2126,
+           g_mult = (force_avg_luminance) ? 1 / 3 : 0.7152,
+           b_mult = (force_avg_luminance) ? 1 / 3 : 0.0722;
+
+    double luminance = (r_mult * r) + (g_mult * g) + (b_mult * b);
     return (uchar)luminance;
 }
 
@@ -27,7 +32,7 @@ uchar Vid2ASCII::get_luminance_approximate(uchar r, uchar g, uchar b)
 WORD Vid2ASCII::get_win32_col(uchar r, uchar g, uchar b)
 {
     WORD col = 0;
-    uchar luminance = get_luminance_approximate(r, g, b);
+    uchar luminance = get_luminance_approximate(r, g, b, true);
 
     col |= (r >= 0x80) ? FOREGROUND_RED : 0;
     col |= (g >= 0x80) ? FOREGROUND_GREEN : 0;

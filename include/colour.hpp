@@ -20,7 +20,7 @@ typedef unsigned short WORD;
 
 namespace Vid2ASCII
 {
-    uchar get_luminance_approximate(uchar, uchar, uchar);
+    uchar get_luminance_approximate(uchar, uchar, uchar, bool);
     WORD get_win32_col(uchar, uchar, uchar);
     int get_ncurses_col_index(uchar, uchar, uchar, short);
     std::string get_char_ansi_col(uchar, uchar, uchar, char);

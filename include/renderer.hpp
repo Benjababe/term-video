@@ -49,7 +49,7 @@ namespace Vid2ASCII
     {
     public:
         Renderer();
-        Renderer(int, bool, bool, uchar, std::string, std::string);
+        Renderer(int, bool, bool, bool, uchar, std::string, std::string);
         void init_renderer();
         void start_renderer();
 
@@ -67,6 +67,7 @@ namespace Vid2ASCII
         bool print_colour;
         bool force_aspect;
         bool ready;
+        bool force_avg_luminance;
         uchar col_threshold;
         uchar prev_r, prev_g, prev_b;
         std::string filename, char_set;

@@ -24,6 +24,7 @@ Vid2ASCII::Renderer::Renderer(
     int frames_to_skip,
     bool print_colour,
     bool force_aspect,
+    bool force_avg_luminance,
     uchar col_threshold,
     std::string filename,
     std::string char_set)
@@ -31,6 +32,7 @@ Vid2ASCII::Renderer::Renderer(
     this->frames_to_skip = frames_to_skip;
     this->print_colour = print_colour;
     this->force_aspect = force_aspect;
+    this->force_avg_luminance = force_avg_luminance;
     this->col_threshold = col_threshold;
     this->filename = filename;
     this->char_set = char_set;
@@ -52,8 +54,8 @@ Vid2ASCII::Renderer::Renderer(
  */
 char Vid2ASCII::Renderer::pixel_to_ascii(uchar pixel_r, uchar pixel_g, uchar pixel_b)
 {
-    double luminance = get_luminance_approximate(pixel_r, pixel_g, pixel_b);
-    double normalised_luminance = luminance / 255;
+    uchar luminance = get_luminance_approximate(pixel_r, pixel_g, pixel_b, this->force_avg_luminance);
+    double normalised_luminance = (double)luminance / 255;
 
     // choose a character set to print out
     std::string ascii_char_set = this->char_set;

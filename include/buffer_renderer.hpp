@@ -53,7 +53,7 @@ namespace Vid2ASCII
     class BufferRenderer : public Renderer
     {
     public:
-        BufferRenderer(int, bool, bool, std::string, std::string);
+        BufferRenderer(int, bool, bool, bool, std::string, std::string);
         void init_renderer();
         void start_renderer();
 
