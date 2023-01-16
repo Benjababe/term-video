@@ -12,9 +12,9 @@
  */
 uchar Vid2ASCII::get_luminance_approximate(uchar r, uchar g, uchar b, bool force_avg_luminance)
 {
-    double r_mult = (force_avg_luminance) ? 1 / 3 : 0.2126,
-           g_mult = (force_avg_luminance) ? 1 / 3 : 0.7152,
-           b_mult = (force_avg_luminance) ? 1 / 3 : 0.0722;
+    double r_mult = (force_avg_luminance) ? 0.3333 : 0.2126,
+           g_mult = (force_avg_luminance) ? 0.3333 : 0.7152,
+           b_mult = (force_avg_luminance) ? 0.3333 : 0.0722;
 
     double luminance = (r_mult * r) + (g_mult * g) + (b_mult * b);
     return (uchar)luminance;
