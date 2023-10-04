@@ -9,7 +9,7 @@
             "args": [
                 "--colour",
                 "--threshold",
-                "4",
+                "0",
                 "--force-aspect",
                 "--file",
                 "./data/lucky.mp4"
