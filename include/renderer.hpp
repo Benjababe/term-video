@@ -3,17 +3,18 @@
 
 #include <algorithm>
 #include <chrono>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <thread>
 #include <vector>
 
-#include <options.hpp>
-#include <optimiser.hpp>
 #include <colour.hpp>
-#include <terminal.hpp>
+#include <optimiser.hpp>
+#include <options.hpp>
 #include <performance_checker.hpp>
+#include <terminal.hpp>
+
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/utils/logger.hpp>
 

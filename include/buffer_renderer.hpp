@@ -9,13 +9,14 @@
 #include <thread>
 #include <vector>
 
-#include <options.hpp>
 #include <optimiser.hpp>
+#include <options.hpp>
+#include <performance_checker.hpp>
 #include <renderer.hpp>
 #include <terminal.hpp>
-#include <performance_checker.hpp>
-#include <opencv2/opencv.hpp>
+
 #include <opencv2/core/utils/logger.hpp>
+#include <opencv2/opencv.hpp>
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN

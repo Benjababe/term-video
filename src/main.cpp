@@ -1,19 +1,20 @@
 #include <algorithm>
 #include <chrono>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <thread>
 #include <vector>
 
-#include <export.hpp>
-#include <options.hpp>
-#include <optimiser.hpp>
-#include <renderer.hpp>
 #include <buffer_renderer.hpp>
+#include <export.hpp>
+#include <optimiser.hpp>
+#include <options.hpp>
+#include <renderer.hpp>
 #include <terminal.hpp>
-#include <opencv2/opencv.hpp>
+
 #include <opencv2/core/utils/logger.hpp>
+#include <opencv2/opencv.hpp>
 
 int main(int argc, char **argv)
 {
