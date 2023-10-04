@@ -1,5 +1,6 @@
-#ifndef INCL_STD_HEADERS
-#define INCL_STD_HEADERS
+#ifndef COLOR_H
+#define COLOR_H
+
 #include <algorithm>
 #include <chrono>
 #include <iostream>
@@ -7,7 +8,6 @@
 #include <string>
 #include <thread>
 #include <vector>
-#endif
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -25,3 +25,5 @@ namespace Vid2ASCII
     int get_ncurses_col_index(uchar, uchar, uchar, short);
     std::string get_char_ansi_col(uchar, uchar, uchar, char);
 }
+
+#endif

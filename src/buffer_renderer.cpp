@@ -1,7 +1,4 @@
-#ifndef INCL_B_RENDERER_HEADER
-#define INCL_B_RENDERER_HEADER
 #include <buffer_renderer.hpp>
-#endif
 
 /**
  * @brief Construct a new BufferRenderer:: BufferRenderer object

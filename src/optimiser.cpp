@@ -1,7 +1,4 @@
-#ifndef INCL_OPTIMISER_HEADER
-#define INCL_OPTIMISER_HEADER
 #include <optimiser.hpp>
-#endif
 
 Vid2ASCII::Optimiser::Optimiser() {}
 Vid2ASCII::Optimiser::Optimiser(uchar col_threshold)

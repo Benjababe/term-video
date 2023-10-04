@@ -1,7 +1,4 @@
-#ifndef INCL_RENDERER_HEADER
-#define INCL_RENDERER_HEADER
 #include <renderer.hpp>
-#endif
 
 /**
  * @brief Default Renderer constructor

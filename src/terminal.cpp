@@ -1,7 +1,4 @@
-#ifndef INCL_TERMINAL_HEADER
-#define INCL_TERMINAL_HEADER
 #include <terminal.hpp>
-#endif
 
 void Vid2ASCII::set_terminal_title(const char *title)
 {

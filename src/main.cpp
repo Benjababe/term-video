@@ -1,5 +1,3 @@
-#ifndef INCL_STD_HEADERS
-#define INCL_STD_HEADERS
 #include <algorithm>
 #include <chrono>
 #include <iostream>
@@ -7,38 +5,14 @@
 #include <string>
 #include <thread>
 #include <vector>
-#endif
 
-#ifndef INCL_EXPORT_HEADER
-#define INCL_EXPORT_HEADER
 #include <export.hpp>
-#endif
-
-#ifndef INCL_OPTIMISER_HEADER
-#define INCL_OPTIMISER_HEADER
 #include <optimiser.hpp>
-#endif
-
-#ifndef INCL_RENDERER_HEADER
-#define INCL_RENDERER_HEADER
 #include <renderer.hpp>
-#endif
-
-#ifndef INCL_B_RENDERER_HEADER
-#define INCL_B_RENDERER_HEADER
 #include <buffer_renderer.hpp>
-#endif
-
-#ifndef INCL_TERMINAL_HEADER
-#define INCL_TERMINAL_HEADER
 #include <terminal.hpp>
-#endif
-
-#ifndef INCL_OPENCV_HEADER
-#define INCL_OPENCV_HEADER
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/utils/logger.hpp>
-#endif
 
 int frames_to_skip = 0;
 unsigned char col_threshold = 0;

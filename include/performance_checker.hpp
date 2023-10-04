@@ -1,5 +1,6 @@
-#ifndef INCL_STD_HEADERS
-#define INCL_STD_HEADERS
+#ifndef PERFORMANCE_CHECKER_H
+#define PERFORMANCE_CHECKER_H
+
 #include <algorithm>
 #include <chrono>
 #include <iostream>
@@ -7,7 +8,6 @@
 #include <string>
 #include <thread>
 #include <vector>
-#endif
 
 #if defined(_WIN32)
 typedef long long int64;
@@ -34,3 +34,5 @@ namespace Vid2ASCII
         std::chrono::steady_clock::time_point start_time;
     };
 }
+
+#endif

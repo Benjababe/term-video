@@ -1,5 +1,6 @@
-#ifndef INCL_STD_HEADERS
-#define INCL_STD_HEADERS
+#ifndef RENDERER_H
+#define RENDERER_H
+
 #include <algorithm>
 #include <chrono>
 #include <iostream>
@@ -7,38 +8,13 @@
 #include <string>
 #include <thread>
 #include <vector>
-#endif
 
-#ifndef INCL_OPTIMISER_HEADER
-#define INCL_OPTIMISER_HEADER
 #include <optimiser.hpp>
-#endif
-
-#ifndef INCL_RENDERER_HEADER
-#define INCL_RENDERER_HEADER
-#include <renderer.hpp>
-#endif
-
-#ifndef INCL_COLOUR_HEADER
-#define INCL_COLOUR_HEADER
 #include <colour.hpp>
-#endif
-
-#ifndef INCL_TERMINAL_HEADER
-#define INCL_TERMINAL_HEADER
 #include <terminal.hpp>
-#endif
-
-#ifndef INCL_PERFCHECKER_HEADER
-#define INCL_PERFCHECKER_HEADER
 #include <performance_checker.hpp>
-#endif
-
-#ifndef INCL_OPENCV_HEADER
-#define INCL_OPENCV_HEADER
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/utils/logger.hpp>
-#endif
 
 typedef unsigned long ULONG;
 typedef unsigned char uchar;
@@ -78,3 +54,5 @@ namespace Vid2ASCII
         void video_to_ascii(cv::VideoCapture);
     };
 }
+
+#endif

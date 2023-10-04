@@ -1,5 +1,6 @@
-#ifndef INCL_STD_HEADERS
-#define INCL_STD_HEADERS
+#ifndef BUFFER_RENDERER_H
+#define BUFFER_RENDERER_H
+
 #include <algorithm>
 #include <chrono>
 #include <iostream>
@@ -7,33 +8,13 @@
 #include <string>
 #include <thread>
 #include <vector>
-#endif
 
-#ifndef INCL_OPTIMISER_HEADER
-#define INCL_OPTIMISER_HEADER
 #include <optimiser.hpp>
-#endif
-
-#ifndef INCL_RENDERER_HEADER
-#define INCL_RENDERER_HEADER
 #include <renderer.hpp>
-#endif
-
-#ifndef INCL_TERMINAL_HEADER
-#define INCL_TERMINAL_HEADER
 #include <terminal.hpp>
-#endif
-
-#ifndef INCL_PERFCHECKER_HEADER
-#define INCL_PERFCHECKER_HEADER
 #include <performance_checker.hpp>
-#endif
-
-#ifndef INCL_OPENCV_HEADER
-#define INCL_OPENCV_HEADER
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/utils/logger.hpp>
-#endif
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -75,3 +56,5 @@ namespace Vid2ASCII
 #endif
     };
 }
+
+#endif

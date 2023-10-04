@@ -1,7 +1,4 @@
-#ifndef INCL_PERFCHECKER_HEADER
-#define INCL_PERFCHECKER_HEADER
 #include <performance_checker.hpp>
-#endif
 
 Vid2ASCII::PerformanceChecker::PerformanceChecker()
 {

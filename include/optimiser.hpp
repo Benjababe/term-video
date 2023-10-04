@@ -1,11 +1,8 @@
-#ifndef INCL_STD_H
-#define INCL_STD_H
-#include <iostream>
-#include <stdlib.h>
-#endif
-
 #ifndef OPTIMISER_H
 #define OPTIMISER_H
+
+#include <iostream>
+#include <stdlib.h>
 
 typedef unsigned char uchar;
 

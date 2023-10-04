@@ -1,7 +1,4 @@
-#ifndef INCL_EXPORT_HEADER
-#define INCL_EXPORT_HEADER
 #include <export.hpp>
-#endif
 
 /**
  * @brief Save ASCII string into a file
