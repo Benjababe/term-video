@@ -54,3 +54,6 @@ out/*
 test/test_runner
 
 .vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/settings.json

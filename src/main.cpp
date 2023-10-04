@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <export.hpp>
+#include <options.hpp>
 #include <optimiser.hpp>
 #include <renderer.hpp>
 #include <buffer_renderer.hpp>
@@ -14,99 +15,23 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/utils/logger.hpp>
 
-int frames_to_skip = 0;
-unsigned char col_threshold = 0;
-bool print_colour = false, force_aspect = false, use_buffer = false, force_avg_lumi = false;
-std::string filename,
-    char_set,
-    ascii_grayscale_chars = "@&%QWNM0gB$#DR8mHXKAUbGOpV4d9h6PkqwSE2]ayjxY5Zoen[ult13If}C{iF|(7J)vTLs?z/*cr!+<>;=^,_:'-.` ",
-    ascii_colour_chars = " `.-':_,^=;><+!rc*/z?sLTv)J7(|Fi{C}fI31tlu[neoZ5Yxjya]2ESwqkP6h9d4VpOGbUAKXHm8RD#$Bg0MNWQ%&@";
-
 int main(int argc, char **argv)
 {
-    // handle arguments
-    for (int i = 0; i < argc; i++)
+    Vid2ASCII::Options opts;
+    int err_code = Vid2ASCII::parse_arguments(opts, argc, argv);
+
+    if (err_code < 0)
+        return 0;
+
+    if (opts.use_buffer)
     {
-        std::string arg = argv[i];
-
-        if (arg == "-f" || arg == "--file")
-        {
-            if (i + 1 < argc)
-            {
-                filename = std::string(argv[++i]);
-            }
-            else
-            {
-                std::cerr << "Option \"" << arg << "\" requires one argument";
-                return 1;
-            }
-        }
-
-        else if (arg == "-t" || arg == "--threshold")
-        {
-            if (i + 1 < argc)
-                col_threshold = std::stoi(argv[++i]);
-            else
-            {
-                std::cerr << "Option \"" << arg << "\" requires one argument";
-                return 1;
-            }
-        }
-
-        else if (arg == "-s" || arg == "--skip-frames")
-        {
-            if (i + 1 < argc)
-                frames_to_skip = std::stoi(argv[++i]);
-            else
-            {
-                std::cerr << "Option \"" << arg << "\" requires one argument";
-                return 1;
-            }
-        }
-
-        else if (arg == "-c" || arg == "--colour")
-        {
-            print_colour = true;
-        }
-
-        else if (arg == "-a" || arg == "--force-aspect")
-        {
-            force_aspect = true;
-        }
-
-        else if (arg == "-b" || arg == "--buffer")
-        {
-            use_buffer = true;
-        }
-
-        else if (arg == "-alumi" || arg == "--avg-lumi")
-        {
-            force_avg_lumi = true;
-        }
-    }
-
-    if (use_buffer)
-    {
-        Vid2ASCII::BufferRenderer bRenderer(
-            frames_to_skip,
-            print_colour,
-            force_aspect,
-            force_avg_lumi,
-            filename,
-            (print_colour) ? ascii_colour_chars : ascii_grayscale_chars);
+        Vid2ASCII::BufferRenderer bRenderer(opts);
         bRenderer.init_renderer();
         bRenderer.start_renderer();
     }
     else
     {
-        Vid2ASCII::Renderer renderer(
-            frames_to_skip,
-            print_colour,
-            force_aspect,
-            force_avg_lumi,
-            col_threshold,
-            filename,
-            (print_colour) ? ascii_colour_chars : ascii_grayscale_chars);
+        Vid2ASCII::Renderer renderer(opts);
         renderer.init_renderer();
         renderer.start_renderer();
     }

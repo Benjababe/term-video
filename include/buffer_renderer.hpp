@@ -9,6 +9,7 @@
 #include <thread>
 #include <vector>
 
+#include <options.hpp>
 #include <optimiser.hpp>
 #include <renderer.hpp>
 #include <terminal.hpp>
@@ -34,7 +35,7 @@ namespace Vid2ASCII
     class BufferRenderer : public Renderer
     {
     public:
-        BufferRenderer(int, bool, bool, bool, std::string, std::string);
+        BufferRenderer(Options);
         void init_renderer();
         void start_renderer();
 

@@ -9,6 +9,7 @@
 #include <thread>
 #include <vector>
 
+#include <options.hpp>
 #include <optimiser.hpp>
 #include <colour.hpp>
 #include <terminal.hpp>
@@ -25,7 +26,7 @@ namespace Vid2ASCII
     {
     public:
         Renderer();
-        Renderer(int, bool, bool, bool, uchar, std::string, std::string);
+        Renderer(Options);
         void init_renderer();
         void start_renderer();
 

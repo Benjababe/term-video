@@ -11,19 +11,13 @@
  * @param filename Video file to be converted into ASCII
  * @param char_set Character set to be used for ASCII conversion
  */
-Vid2ASCII::BufferRenderer::BufferRenderer(
-    int frames_to_skip,
-    bool print_colour,
-    bool force_aspect,
-    bool force_avg_lumi,
-    std::string filename,
-    std::string char_set)
+Vid2ASCII::BufferRenderer::BufferRenderer(Options opts)
 {
-    this->frames_to_skip = frames_to_skip;
-    this->print_colour = print_colour;
-    this->force_aspect = force_aspect;
-    this->filename = filename;
-    this->char_set = char_set;
+    this->frames_to_skip = opts.frames_to_skip;
+    this->print_colour = opts.print_colour;
+    this->force_aspect = opts.force_aspect;
+    this->filename = opts.filename;
+    this->char_set = opts.char_set;
     this->padding_x = this->padding_y = 0;
     this->prev_r = this->prev_g = this->prev_b = 255;
     this->next_frame = std::chrono::steady_clock::now();
