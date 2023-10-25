@@ -9,10 +9,9 @@
             "args": [
                 "--colour",
                 "--threshold",
-                "0",
-                "--force-aspect",
+                "6",
                 "--file",
-                "./data/lucky.mp4"
+                "./data/hidaneko.mp4"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -22,7 +21,7 @@
                     "value": "${env:PATH}:${command:cmake.getLaunchTargetDirectory}"
                 }
             ],
-            "console": "externalTerminal"
+            "console": "externalTerminal",
         },
         {
             "name": "CMake Build & Launch Linux",
