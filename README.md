@@ -13,7 +13,7 @@ Currently has the following options:
 [Coloured buffer printing sample](https://www.youtube.com/watch?v=KUX2ZvlXs1w)
 
 ## Prerequisites
-CMake version >= 3.0 is required as it's what I have installed. Versions below are untested, feel free to edit CMakeLists.txt
+CMake version >= 3.5 is required as it's what I have installed. Versions below are untested, feel free to edit CMakeLists.txt
 
 For libraries, OpenCV is required. 4.6 is what I have installed but older versions probably work with this project.
 
