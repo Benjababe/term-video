@@ -31,7 +31,7 @@ namespace Vid2ASCII
         int frame_count;
         double frame_time_total;
         int64 wait_time_total;
-        std::chrono::steady_clock::time_point start_time;
+        std::chrono::_V2::system_clock::time_point start_time;
     };
 }
 
