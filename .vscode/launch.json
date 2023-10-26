@@ -15,7 +15,7 @@
                 "--audio-language",
                 "jpn",
                 "--file",
-                "./data/roman.mkv"
+                "./data/hitotsu.mp4"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

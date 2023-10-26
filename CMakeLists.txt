@@ -1,20 +1,26 @@
 cmake_minimum_required(VERSION 3.6)
-project(cpp_video_to_ascii VERSION 1.0.0 LANGUAGES CXX)
 
+set(PROJECT_NAME cpp_video_to_ascii)
+project(${PROJECT_NAME} CXX)
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/out/build/)
 
-find_package(OpenCV REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET
+    libavformat
+    libavcodec
+    libavutil
+    libswresample)
+pkg_check_modules(OPENCV REQUIRED IMPORTED_TARGET
+    opencv4)
 
-include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/src
 )
-include_directories(${PROJECT_SOURCE_DIR}/ffmpeg/include)
-link_directories(${PROJECT_SOURCE_DIR}/ffmpeg/lib)
 
 file(GLOB ALL_SRCS
     "${PROJECT_SOURCE_DIR}/include/*.h"
@@ -24,7 +30,9 @@ file(GLOB ALL_SRCS
 )
 
 add_executable(${PROJECT_NAME} ${ALL_SRCS})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
+
+target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::LIBAV)
+target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::OPENCV)
 
 if(CMAKE_HOST_SYSTEM MATCHES Linux)
     find_package(Curses REQUIRED)
