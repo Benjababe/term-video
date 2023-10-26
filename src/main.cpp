@@ -14,19 +14,12 @@
 #include <renderer.hpp>
 #include <terminal.hpp>
 
-void handle_audio(Vid2ASCII::Options opts)
+void play_audio(Vid2ASCII::Options opts)
 {
-    std::string res = Vid2ASCII::AudioPlayer::open_file(opts.filename);
-    if (res.length() > 0)
-    {
-        std::cout << res << std::endl;
-        return;
-    }
-
     Vid2ASCII::AudioPlayer::play_file();
 }
 
-void handle_video(Vid2ASCII::Options opts)
+void play_video(Vid2ASCII::Options opts)
 {
     if (opts.use_buffer)
     {
@@ -53,8 +46,15 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    std::thread thread_audio(handle_audio, opts);
-    std::thread thread_video(handle_video, opts);
+    std::string res = Vid2ASCII::AudioPlayer::open_file(opts);
+    if (res.length() > 0)
+    {
+        std::cout << res << std::endl;
+        return 0;
+    }
+
+    std::thread thread_audio(play_audio, opts);
+    std::thread thread_video(play_video, opts);
 
     thread_audio.join();
     thread_video.join();

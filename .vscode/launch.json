@@ -9,11 +9,13 @@
             "args": [
                 "--colour",
                 "--threshold",
-                "4",
+                "8",
                 "--skip-frames",
-                "3",
+                "0",
+                "--audio-language",
+                "jpn",
                 "--file",
-                "./data/hitotsu.mp4"
+                "./data/roman.mkv"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

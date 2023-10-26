@@ -28,10 +28,10 @@ namespace Vid2ASCII
             AVFrame *frame;
             SwrContext *swr;
             AVAudioFifo *buffer;
-            int stream_index;
         };
 
-        std::string open_file(std::string);
+        std::string get_audio_stream(std::string);
+        std::string open_file(Options);
         std::string decode_file();
         void play_file();
     }

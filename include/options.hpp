@@ -10,6 +10,7 @@ namespace Vid2ASCII
     {
         std::string filename = "";
         std::string char_set = "";
+        std::string audio_language = "";
         unsigned char col_threshold = 0;
         int frames_to_skip = 0;
         bool print_colour = false;

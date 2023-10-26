@@ -14,9 +14,18 @@ int Vid2ASCII::parse_arguments(Vid2ASCII::Options &opts, int argc, char **argv)
         if (arg == "-f" || arg == "--file")
         {
             if (i + 1 < argc)
-            {
                 opts.filename = std::string(argv[++i]);
+            else
+            {
+                std::cerr << "Option \"" << arg << "\" requires one argument";
+                return -1;
             }
+        }
+
+        else if (arg == "-al" || arg == "--audio-language")
+        {
+            if (i + 1 < argc)
+                opts.audio_language = std::string(argv[++i]);
             else
             {
                 std::cerr << "Option \"" << arg << "\" requires one argument";

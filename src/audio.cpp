@@ -11,15 +11,45 @@ void data_callback(ma_device *p_device, void *p_output, const void *p_input, ma_
     av_audio_fifo_read(fifo, &p_output, frame_count);
 }
 
-std::string Vid2ASCII::AudioPlayer::open_file(std::string file_path)
+std::string Vid2ASCII::AudioPlayer::get_audio_stream(std::string audio_language)
+{
+    // Find preferred audio stream language if exists
+    if (audio_language.length() > 0)
+    {
+        for (size_t i = 0; i < audioInfo.format_ctx->nb_streams; ++i)
+        {
+            AVStream *stream = audioInfo.format_ctx->streams[i];
+            if (stream->codecpar->codec_type != AVMEDIA_TYPE_AUDIO)
+                continue;
+
+            AVDictionaryEntry *lang = av_dict_get(stream->metadata, "language", NULL, 0);
+            if (!strncmp(lang->value, audio_language.c_str(), 3))
+            {
+                audioInfo.stream = audioInfo.format_ctx->streams[i];
+                return "";
+            }
+        }
+    }
+
+    // Fall back to best stream available
+    int stream_index = av_find_best_stream(audioInfo.format_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
+    if (stream_index < 0)
+        return "No audio streams found in file!";
+
+    audioInfo.stream = audioInfo.format_ctx->streams[stream_index];
+    return "";
+}
+
+std::string Vid2ASCII::AudioPlayer::open_file(Options opts)
 {
     audioInfo.packet = av_packet_alloc();
     audioInfo.frame = av_frame_alloc();
     audioInfo.buffer = NULL;
 
     int ret;
+    std::string err;
 
-    ret = avformat_open_input(&audioInfo.format_ctx, file_path.c_str(), nullptr, nullptr);
+    ret = avformat_open_input(&audioInfo.format_ctx, opts.filename.c_str(), nullptr, nullptr);
     if (ret < 0)
         return "Unable to open media file!";
 
@@ -27,11 +57,9 @@ std::string Vid2ASCII::AudioPlayer::open_file(std::string file_path)
     if (ret < 0)
         return "Unable to find stream info!";
 
-    audioInfo.stream_index = av_find_best_stream(audioInfo.format_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
-    if (audioInfo.stream_index < 0)
-        return "No audio streams found in file!";
-
-    audioInfo.stream = audioInfo.format_ctx->streams[audioInfo.stream_index];
+    err = get_audio_stream(opts.audio_language);
+    if (err.length() > 0)
+        return err;
 
     audioInfo.decoder = avcodec_find_decoder(audioInfo.stream->codecpar->codec_id);
     if (!audioInfo.decoder)
@@ -45,7 +73,7 @@ std::string Vid2ASCII::AudioPlayer::open_file(std::string file_path)
     if (ret < 0)
         return "Decoder could not be opened\n";
 
-    std::string err = decode_file();
+    err = decode_file();
     if (err.length() > 0)
         return err;
 

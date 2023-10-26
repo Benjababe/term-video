@@ -24,7 +24,6 @@ file(GLOB ALL_SRCS
 )
 
 add_executable(${PROJECT_NAME} ${ALL_SRCS})
-
 target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
 
 if(CMAKE_HOST_SYSTEM MATCHES Linux)
