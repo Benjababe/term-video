@@ -41,7 +41,7 @@
                 "--audio-language",
                 "jpn",
                 "--file",
-                "./data/hitotsu.mp4"
+                "./data/lucky.mp4"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

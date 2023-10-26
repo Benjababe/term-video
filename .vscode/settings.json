@@ -87,7 +87,8 @@
         "random": "cpp",
         "string_view": "cpp",
         "ranges": "cpp",
-        "span": "cpp"
+        "span": "cpp",
+        "*.ipp": "cpp"
     },
     "cmake.configureOnOpen": false,
     "C_Cpp.dimInactiveRegions": true

@@ -153,12 +153,12 @@ void Vid2ASCII::Renderer::frame_downscale(cv::Mat &frame)
 /**
  * @brief Waits for frametime sync before resuming program
  *
- * @param frametime_ms Time given for each frame in milliseconds
+ * @param frametime_ns Time given for each frame in nanoseconds
  */
-void Vid2ASCII::Renderer::wait_for_frame(int64 frametime_ms)
+void Vid2ASCII::Renderer::wait_for_frame(int64 frametime_µs)
 {
-    next_frame += std::chrono::milliseconds(frametime_ms);
-    std::this_thread::sleep_until(next_frame);
+    this->next_frame += std::chrono::nanoseconds(frametime_µs);
+    std::this_thread::sleep_until(this->next_frame);
 }
 
 /**
@@ -169,7 +169,7 @@ void Vid2ASCII::Renderer::wait_for_frame(int64 frametime_ms)
 void Vid2ASCII::Renderer::video_to_ascii(cv::VideoCapture cap)
 {
     double fps = cap.get(cv::CAP_PROP_FPS);
-    int64 frametime_ms = (int64)(1000 / fps) * (1 + this->frames_to_skip);
+    int64 frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
 
     while (1)
     {
@@ -190,11 +190,14 @@ void Vid2ASCII::Renderer::video_to_ascii(cv::VideoCapture cap)
         // convert pixels and store to ascii_frame
         std::string ascii_frame;
         this->frame_to_ascii(ascii_frame, frame.data, frame.cols, frame.rows, frame.channels());
-
         std::cout << "\r" << ascii_frame;
 
+        // refetch terminal size every 4 frames
+        if (frame_count % 4 == 0)
+            get_terminal_size(this->width, this->height);
+
         // wait for next interval before processing
-        this->wait_for_frame(frametime_ms);
+        this->wait_for_frame(frametime_ns);
     }
 }
 
