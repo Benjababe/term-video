@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "CMake Build & Launch Windows",
+            "name": "CMake Build & Launch (MSVC)",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
@@ -28,13 +28,20 @@
             "console": "externalTerminal",
         },
         {
-            "name": "CMake Build & Launch Linux",
+            "name": "CMake Build & Launch (GDB)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
             "args": [
+                "--colour",
+                "--threshold",
+                "8",
+                "--skip-frames",
+                "0",
+                "--audio-language",
+                "jpn",
                 "--file",
-                "./data/ouran0.mkv"
+                "./data/hitotsu.mp4"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -45,7 +52,7 @@
                 }
             ],
             "MIMode": "gdb",
-            "miDebuggerPath": "/usr/bin/gdb"
+            "externalConsole": true,
         }
     ]
 }
