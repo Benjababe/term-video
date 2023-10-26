@@ -1,6 +1,6 @@
-# C++ Video to ASCII
+# Terminal Vidya Player
 
-A CLI application to convert videos into an ASCII output on your terminal.
+A terminal application to play videos with an ASCII output.
 
 Currently has the following options:
 - Non-coloured line printing
@@ -15,7 +15,7 @@ Currently has the following options:
 ## Prerequisites
 CMake version >= 3.5 is required as it's what I have installed. Versions below are untested, feel free to edit CMakeLists.txt
 
-For libraries, OpenCV is required. 4.6 is what I have installed but older versions probably work with this project.
+For libraries, OpenCV is required. 4.8 is what I have installed but older versions probably work with this project.
 
 ## Building The Project
 From project root, run

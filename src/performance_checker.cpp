@@ -15,7 +15,7 @@ void Vid2ASCII::PerformanceChecker::start_frame_time()
 void Vid2ASCII::PerformanceChecker::end_frame_time()
 {
     auto end_time = std::chrono::high_resolution_clock::now();
-    auto frame_time = std::chrono::duration_cast<std::chrono::seconds>(end_time - this->start_time);
+    auto frame_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - this->start_time);
 
     this->frame_count++;
     this->frame_time_total += frame_time.count();

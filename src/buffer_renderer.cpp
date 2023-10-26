@@ -139,7 +139,7 @@ void Vid2ASCII::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int wi
 void Vid2ASCII::BufferRenderer::video_to_ascii(cv::VideoCapture cap)
 {
     double fps = cap.get(cv::CAP_PROP_FPS);
-    int64 frametime_ms = (int64)(1000 / fps) * (1 + this->frames_to_skip);
+    int64 frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
 
     while (1)
     {
@@ -161,7 +161,7 @@ void Vid2ASCII::BufferRenderer::video_to_ascii(cv::VideoCapture cap)
         this->frame_to_ascii(frame.data, frame.cols, frame.rows, frame.channels());
 
         // wait for next interval before processing
-        this->wait_for_frame(frametime_ms);
+        this->wait_for_frame(frametime_ns);
     }
 }
 

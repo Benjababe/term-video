@@ -34,6 +34,7 @@
             "program": "${command:cmake.launchTargetPath}",
             "args": [
                 "--colour",
+                "--buffer",
                 "--threshold",
                 "8",
                 "--skip-frames",
@@ -41,7 +42,7 @@
                 "--audio-language",
                 "jpn",
                 "--file",
-                "./data/lucky.mp4"
+                "./data/roman.mkv"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
