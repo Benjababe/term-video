@@ -6,13 +6,13 @@
 #include <thread>
 #include <vector>
 
-#include <audio.hpp>
-#include <buffer_renderer.hpp>
-#include <export.hpp>
-#include <optimiser.hpp>
-#include <options.hpp>
-#include <renderer.hpp>
-#include <terminal.hpp>
+#include "audio.hpp"
+#include "buffer_renderer.hpp"
+#include "export.hpp"
+#include "optimiser.hpp"
+#include "options.hpp"
+#include "renderer.hpp"
+#include "terminal.hpp"
 
 void play_audio(Vid2ASCII::Options opts)
 {

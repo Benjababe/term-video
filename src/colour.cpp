@@ -1,4 +1,4 @@
-#include <colour.hpp>
+#include "colour.hpp"
 
 /**
  * @brief Returns an approximate relative luminance of pixel, skips linearisation for performance.

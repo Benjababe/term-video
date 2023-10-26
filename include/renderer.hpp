@@ -9,11 +9,11 @@
 #include <thread>
 #include <vector>
 
-#include <colour.hpp>
-#include <optimiser.hpp>
-#include <options.hpp>
-#include <performance_checker.hpp>
-#include <terminal.hpp>
+#include "colour.hpp"
+#include "optimiser.hpp"
+#include "options.hpp"
+#include "performance_checker.hpp"
+#include "terminal.hpp"
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/utils/logger.hpp>

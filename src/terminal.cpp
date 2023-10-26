@@ -1,4 +1,4 @@
-#include <terminal.hpp>
+#include "terminal.hpp"
 
 void Vid2ASCII::set_terminal_title(const char *title)
 {

@@ -1,4 +1,4 @@
-#include <optimiser.hpp>
+#include "optimiser.hpp"
 
 Vid2ASCII::Optimiser::Optimiser() {}
 Vid2ASCII::Optimiser::Optimiser(uchar col_threshold)
