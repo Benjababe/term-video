@@ -160,6 +160,10 @@ void Vid2ASCII::BufferRenderer::video_to_ascii(cv::VideoCapture cap)
         // converts frame into ascii output & prints it out
         this->frame_to_ascii(frame.data, frame.cols, frame.rows, frame.channels());
 
+        // refetch terminal size every 4 frames
+        if (frame_count % 4 == 0)
+            get_terminal_size(this->width, this->height);
+
         // wait for next interval before processing
         this->wait_for_frame(frametime_ns);
     }
