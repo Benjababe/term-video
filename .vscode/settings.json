@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.inc": "php",
+        "*.S": "asm-intel-x86-generic",
         "fstream": "cpp",
         "algorithm": "cpp",
         "array": "cpp",
@@ -84,7 +85,9 @@
         "memory_resource": "cpp",
         "numeric": "cpp",
         "random": "cpp",
-        "string_view": "cpp"
+        "string_view": "cpp",
+        "ranges": "cpp",
+        "span": "cpp"
     },
     "cmake.configureOnOpen": false,
     "C_Cpp.dimInactiveRegions": true

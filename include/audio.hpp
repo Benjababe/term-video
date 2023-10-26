@@ -18,7 +18,22 @@ namespace Vid2ASCII
 {
     namespace AudioPlayer
     {
-        std::string play_file(std::string);
+        struct AudioInfo
+        {
+            const AVCodec *decoder;
+            AVFormatContext *format_ctx;
+            AVCodecContext *codec_ctx;
+            AVStream *stream;
+            AVPacket *packet;
+            AVFrame *frame;
+            SwrContext *swr;
+            AVAudioFifo *buffer;
+            int stream_index;
+        };
+
+        std::string open_file(std::string);
+        std::string decode_file();
+        void play_file();
     }
 }
 

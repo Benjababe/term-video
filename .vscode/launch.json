@@ -9,9 +9,11 @@
             "args": [
                 "--colour",
                 "--threshold",
-                "6",
+                "4",
+                "--skip-frames",
+                "3",
                 "--file",
-                "./data/hidaneko.mp4"
+                "./data/hitotsu.mp4"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

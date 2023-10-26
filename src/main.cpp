@@ -16,9 +16,14 @@
 
 void handle_audio(Vid2ASCII::Options opts)
 {
-    std::string res = Vid2ASCII::AudioPlayer::play_file(opts.filename);
+    std::string res = Vid2ASCII::AudioPlayer::open_file(opts.filename);
     if (res.length() > 0)
+    {
         std::cout << res << std::endl;
+        return;
+    }
+
+    Vid2ASCII::AudioPlayer::play_file();
 }
 
 void handle_video(Vid2ASCII::Options opts)
