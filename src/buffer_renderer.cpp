@@ -162,10 +162,21 @@ void Vid2ASCII::BufferRenderer::video_to_ascii(cv::VideoCapture cap)
 
         // refetch terminal size every 4 frames
         if (frame_count % 4 == 0)
-            get_terminal_size(this->width, this->height);
+            this->check_resize();
 
         // wait for next interval before processing
         this->wait_for_frame(frametime_ns);
+    }
+}
+
+void Vid2ASCII::BufferRenderer::check_resize()
+{
+    int new_width, new_height;
+    get_terminal_size(new_width, new_height);
+
+    if (this->width != new_width || this->height != new_height)
+    {
+        init_renderer();
     }
 }
 

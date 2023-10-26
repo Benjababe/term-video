@@ -44,6 +44,7 @@ namespace Vid2ASCII
         void frame_to_ascii(uchar *, const int, const int, const int);
         void video_to_ascii(cv::VideoCapture);
         void write_to_buffer(const int, const int, uchar, WORD);
+        void check_resize();
 
 #if defined(_WIN32)
         CHAR_INFO *buffer;
