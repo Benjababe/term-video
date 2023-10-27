@@ -9,6 +9,7 @@
 #include <thread>
 #include <vector>
 
+#include "media.hpp"
 #include "optimiser.hpp"
 #include "options.hpp"
 #include "performance_checker.hpp"
@@ -36,7 +37,7 @@ namespace Vid2ASCII
     class BufferRenderer : public Renderer
     {
     public:
-        BufferRenderer(Options);
+        BufferRenderer(MediaInfo, Options);
         void init_renderer();
         void start_renderer();
 
@@ -48,7 +49,7 @@ namespace Vid2ASCII
 
 #if defined(_WIN32)
         CHAR_INFO *buffer;
-        HANDLE writeHandle;
+        HANDLE write_handle;
         COORD buffer_size;
         SMALL_RECT console_write_area;
 #elif defined(__linux__)

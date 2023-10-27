@@ -8,12 +8,12 @@ void Vid2ASCII::set_terminal_title(const char *title)
 void Vid2ASCII::hide_terminal_cursor()
 {
 #if defined(_WIN32)
-    HANDLE writeHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    HANDLE write_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_CURSOR_INFO cursorInfo;
 
-    GetConsoleCursorInfo(writeHandle, &cursorInfo);
+    GetConsoleCursorInfo(write_handle, &cursorInfo);
     cursorInfo.bVisible = false;
-    SetConsoleCursorInfo(writeHandle, &cursorInfo);
+    SetConsoleCursorInfo(write_handle, &cursorInfo);
 #elif defined(__linux__)
     std::cout << "\033[?25l";
 #endif

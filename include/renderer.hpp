@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "colour.hpp"
+#include "media.hpp"
 #include "optimiser.hpp"
 #include "options.hpp"
 #include "performance_checker.hpp"
@@ -23,22 +24,29 @@ typedef unsigned char uchar;
 
 namespace Vid2ASCII
 {
+    struct VideoInfo
+    {
+        AVFormatContext *format_ctx;
+        AVStream *stream;
+    };
+
     class Renderer
     {
     public:
         Renderer();
-        Renderer(Options);
+        Renderer(MediaInfo, Options);
         void init_renderer();
         void start_renderer();
 
         Optimiser optimiser;
-        PerformanceChecker perfChecker;
+        PerformanceChecker perf_checker;
 
     protected:
         char pixel_to_ascii(uchar, uchar, uchar);
         void frame_downscale(cv::Mat &);
         void wait_for_frame(int64);
 
+        VideoInfo video_info;
         int frames_to_skip;
         int width, height;
         int padding_x, padding_y;

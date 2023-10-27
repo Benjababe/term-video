@@ -12,10 +12,10 @@ namespace Vid2ASCII
         av_audio_fifo_read(fifo, &p_output, frame_count);
     }
 
-    AudioPlayer::AudioPlayer(MediaInfo mediaInfo)
+    AudioPlayer::AudioPlayer(MediaInfo media_info)
     {
-        this->audioInfo.format_ctx = mediaInfo.format_ctx;
-        this->audioInfo.buffer = NULL;
+        this->audio_info.format_ctx = media_info.format_ctx;
+        this->audio_info.buffer = NULL;
     }
 
     std::string AudioPlayer::get_audio_stream(std::string audio_language)
@@ -23,16 +23,16 @@ namespace Vid2ASCII
         // Find preferred audio stream language if exists
         if (audio_language.length() > 0)
         {
-            for (size_t i = 0; i < this->audioInfo.format_ctx->nb_streams; ++i)
+            for (size_t i = 0; i < this->audio_info.format_ctx->nb_streams; ++i)
             {
-                AVStream *stream = this->audioInfo.format_ctx->streams[i];
+                AVStream *stream = this->audio_info.format_ctx->streams[i];
                 if (stream->codecpar->codec_type != AVMEDIA_TYPE_AUDIO)
                     continue;
 
                 AVDictionaryEntry *lang = av_dict_get(stream->metadata, "language", NULL, 0);
                 if (!strncmp(lang->value, audio_language.c_str(), 3))
                 {
-                    this->audioInfo.stream = this->audioInfo.format_ctx->streams[i];
+                    this->audio_info.stream = this->audio_info.format_ctx->streams[i];
                     return "";
                 }
             }
@@ -40,7 +40,7 @@ namespace Vid2ASCII
 
         // Fall back to best stream available
         int stream_index = av_find_best_stream(
-            this->audioInfo.format_ctx,
+            this->audio_info.format_ctx,
             AVMEDIA_TYPE_AUDIO,
             -1,
             -1,
@@ -49,7 +49,7 @@ namespace Vid2ASCII
         if (stream_index < 0)
             return "No audio streams found in file!";
 
-        this->audioInfo.stream = this->audioInfo.format_ctx->streams[stream_index];
+        this->audio_info.stream = this->audio_info.format_ctx->streams[stream_index];
         return "";
     }
 
@@ -72,12 +72,12 @@ namespace Vid2ASCII
         if (err.length() > 0)
             return err;
 
-        this->audioInfo.buffer = av_audio_fifo_alloc(
+        this->audio_info.buffer = av_audio_fifo_alloc(
             AV_SAMPLE_FMT_FLT,
-            this->audioInfo.stream->codecpar->ch_layout.nb_channels,
+            this->audio_info.stream->codecpar->ch_layout.nb_channels,
             1);
 
-        while (!av_read_frame(this->audioInfo.format_ctx, packet))
+        while (!av_read_frame(this->audio_info.format_ctx, packet))
         {
             err = this->write_packet_to_buffer(codec_ctx, swr_ctx, packet, frame);
             if (err.length() > 0)
@@ -94,12 +94,12 @@ namespace Vid2ASCII
 
     std::string AudioPlayer::get_decoder(const AVCodec **decoder, AVCodecContext **codec_ctx, SwrContext **swr_ctx)
     {
-        *decoder = avcodec_find_decoder(this->audioInfo.stream->codecpar->codec_id);
+        *decoder = avcodec_find_decoder(this->audio_info.stream->codecpar->codec_id);
         if (!decoder)
             return "No appropriate decoder found for file!";
 
         *codec_ctx = avcodec_alloc_context3(*decoder);
-        avcodec_parameters_to_context(*codec_ctx, this->audioInfo.stream->codecpar);
+        avcodec_parameters_to_context(*codec_ctx, this->audio_info.stream->codecpar);
 
         int ret = avcodec_open2(*codec_ctx, *decoder, nullptr);
         if (ret < 0)
@@ -107,12 +107,12 @@ namespace Vid2ASCII
 
         ret = swr_alloc_set_opts2(
             swr_ctx,
-            &this->audioInfo.stream->codecpar->ch_layout,
+            &this->audio_info.stream->codecpar->ch_layout,
             AV_SAMPLE_FMT_FLT,
-            this->audioInfo.stream->codecpar->sample_rate,
-            &this->audioInfo.stream->codecpar->ch_layout,
-            (AVSampleFormat)this->audioInfo.stream->codecpar->format,
-            this->audioInfo.stream->codecpar->sample_rate,
+            this->audio_info.stream->codecpar->sample_rate,
+            &this->audio_info.stream->codecpar->ch_layout,
+            (AVSampleFormat)this->audio_info.stream->codecpar->format,
+            this->audio_info.stream->codecpar->sample_rate,
             0,
             nullptr);
         if (ret < 0)
@@ -124,7 +124,7 @@ namespace Vid2ASCII
     std::string AudioPlayer::write_packet_to_buffer(AVCodecContext *codec_ctx, SwrContext *swr_ctx, AVPacket *packet, AVFrame *frame)
     {
         // If not reading audio stream, skip
-        if (packet->stream_index != this->audioInfo.stream->index)
+        if (packet->stream_index != this->audio_info.stream->index)
             return "";
 
         int ret = avcodec_send_packet(codec_ctx, packet);
@@ -143,7 +143,7 @@ namespace Vid2ASCII
 
             ret = swr_convert_frame(swr_ctx, resampled_frame, frame);
             av_frame_unref(frame);
-            av_audio_fifo_write(this->audioInfo.buffer,
+            av_audio_fifo_write(this->audio_info.buffer,
                                 (void **)resampled_frame->data,
                                 resampled_frame->nb_samples);
             av_frame_unref(resampled_frame);
@@ -159,12 +159,12 @@ namespace Vid2ASCII
 
         device_config = ma_device_config_init(ma_device_type_playback);
         device_config.playback.format = ma_format_f32;
-        device_config.playback.channels = this->audioInfo.stream->codecpar->ch_layout.nb_channels;
-        device_config.sampleRate = this->audioInfo.stream->codecpar->sample_rate;
+        device_config.playback.channels = this->audio_info.stream->codecpar->ch_layout.nb_channels;
+        device_config.sampleRate = this->audio_info.stream->codecpar->sample_rate;
         device_config.dataCallback = data_callback;
-        device_config.pUserData = this->audioInfo.buffer;
+        device_config.pUserData = this->audio_info.buffer;
 
-        avformat_close_input(&this->audioInfo.format_ctx);
+        avformat_close_input(&this->audio_info.format_ctx);
 
         if (ma_device_init(NULL, &device_config, &device) != MA_SUCCESS)
             return;
@@ -175,12 +175,12 @@ namespace Vid2ASCII
             return;
         }
 
-        while (av_audio_fifo_size(this->audioInfo.buffer))
+        while (av_audio_fifo_size(this->audio_info.buffer))
         {
         }
 
-        av_freep(this->audioInfo.stream);
-        av_audio_fifo_free(this->audioInfo.buffer);
+        av_freep(this->audio_info.stream);
+        av_audio_fifo_free(this->audio_info.buffer);
         ma_device_uninit(&device);
     }
 }

@@ -9,6 +9,7 @@ Vid2ASCII::Renderer::Renderer() {}
 /**
  * @brief Construct a new Renderer:: Renderer object
  *
+ * @param media_info File information extracted from FFmpeg
  * @param frames_to_skip Frames to skip for every 1 frame. Reduces flickering effect
  * @param width Width to render ASCII output
  * @param height Height to render ASCII output
@@ -17,8 +18,10 @@ Vid2ASCII::Renderer::Renderer() {}
  * @param filename Video file to be converted into ASCII
  * @param char_set Character set to be used for ASCII conversion
  */
-Vid2ASCII::Renderer::Renderer(Options opts)
+Vid2ASCII::Renderer::Renderer(MediaInfo media_info, Options opts)
 {
+    this->video_info.format_ctx = media_info.format_ctx;
+
     this->frames_to_skip = opts.frames_to_skip;
     this->print_colour = opts.print_colour;
     this->force_aspect = opts.force_aspect;
@@ -30,7 +33,7 @@ Vid2ASCII::Renderer::Renderer(Options opts)
     this->prev_r = this->prev_g = this->prev_b = 255;
     this->next_frame = std::chrono::steady_clock::now();
     this->optimiser = Optimiser(col_threshold);
-    this->perfChecker = PerformanceChecker();
+    this->perf_checker = PerformanceChecker();
     this->ready = false;
 }
 
@@ -76,7 +79,7 @@ void Vid2ASCII::Renderer::frame_to_ascii(
     const int channels)
 {
     ascii_output = "";
-    this->perfChecker.start_frame_time();
+    this->perf_checker.start_frame_time();
 
     for (int row = 0; row < height; row++)
     {
@@ -111,7 +114,7 @@ void Vid2ASCII::Renderer::frame_to_ascii(
             ascii_output += std::string(this->padding_x, ' ');
     }
 
-    this->perfChecker.end_frame_time();
+    this->perf_checker.end_frame_time();
 }
 
 /**
@@ -155,9 +158,9 @@ void Vid2ASCII::Renderer::frame_downscale(cv::Mat &frame)
  *
  * @param frametime_ns Time given for each frame in nanoseconds
  */
-void Vid2ASCII::Renderer::wait_for_frame(int64 frametime_µs)
+void Vid2ASCII::Renderer::wait_for_frame(int64 frametime_ns)
 {
-    this->next_frame += std::chrono::nanoseconds(frametime_µs);
+    this->next_frame += std::chrono::nanoseconds(frametime_ns);
     std::this_thread::sleep_until(this->next_frame);
 }
 
@@ -230,6 +233,6 @@ void Vid2ASCII::Renderer::start_renderer()
     cap.release();
 
     // prints performance after finishing video
-    double avg_time = this->perfChecker.get_avg_frame_time();
+    double avg_time = this->perf_checker.get_avg_frame_time();
     std::cout << "Average frame time: " << avg_time << "ms" << std::endl;
 }

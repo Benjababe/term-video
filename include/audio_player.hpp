@@ -27,7 +27,7 @@ namespace Vid2ASCII
     class AudioPlayer
     {
     private:
-        AudioInfo audioInfo;
+        AudioInfo audio_info;
         std::string get_audio_stream(std::string);
         std::string get_decoder(const AVCodec **, AVCodecContext **, SwrContext **);
         std::string write_packet_to_buffer(AVCodecContext *, SwrContext *, AVPacket *, AVFrame *);

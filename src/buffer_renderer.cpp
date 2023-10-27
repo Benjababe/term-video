@@ -3,6 +3,7 @@
 /**
  * @brief Construct a new BufferRenderer:: BufferRenderer object
  *
+ * @param media_info File information extracted from FFmpeg
  * @param frames_to_skip Frames to skip for every 1 frame. Reduces flickering effect
  * @param width Width to render ASCII output
  * @param height Height to render ASCII output
@@ -11,8 +12,10 @@
  * @param filename Video file to be converted into ASCII
  * @param char_set Character set to be used for ASCII conversion
  */
-Vid2ASCII::BufferRenderer::BufferRenderer(Options opts)
+Vid2ASCII::BufferRenderer::BufferRenderer(MediaInfo media_info, Options opts)
 {
+    this->video_info.format_ctx = media_info.format_ctx;
+
     this->frames_to_skip = opts.frames_to_skip;
     this->print_colour = opts.print_colour;
     this->force_aspect = opts.force_aspect;
@@ -21,7 +24,7 @@ Vid2ASCII::BufferRenderer::BufferRenderer(Options opts)
     this->padding_x = this->padding_y = 0;
     this->prev_r = this->prev_g = this->prev_b = 255;
     this->next_frame = std::chrono::steady_clock::now();
-    this->perfChecker = PerformanceChecker();
+    this->perf_checker = PerformanceChecker();
     this->ready = false;
 #if defined(__linux__)
     this->color_step_no = 1;
@@ -73,7 +76,7 @@ void Vid2ASCII::BufferRenderer::set_curses_colors()
  */
 void Vid2ASCII::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int width, const int height, const int channels)
 {
-    this->perfChecker.start_frame_time();
+    this->perf_checker.start_frame_time();
 
     for (int row = 0; row < height; row++)
     {
@@ -124,10 +127,10 @@ void Vid2ASCII::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int wi
 #endif
     }
 
-    this->perfChecker.end_frame_time();
+    this->perf_checker.end_frame_time();
 
 #if defined(_WIN32)
-    WriteConsoleOutputA(this->writeHandle, this->buffer, this->buffer_size, {0, 0}, &this->console_write_area);
+    WriteConsoleOutputA(this->write_handle, this->buffer, this->buffer_size, {0, 0}, &this->console_write_area);
 #endif
 }
 
@@ -196,12 +199,12 @@ void Vid2ASCII::BufferRenderer::init_renderer()
     short width_s = (short)this->width - 1,
           height_s = (short)this->height - 1;
 
-    this->writeHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    this->write_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     this->buffer = new CHAR_INFO[this->width * this->height];
     this->console_write_area = {0, 0, width_s, height_s};
 
     this->buffer_size = {(short)this->width, (short)this->height};
-    SetConsoleScreenBufferSize(this->writeHandle, this->buffer_size);
+    SetConsoleScreenBufferSize(this->write_handle, this->buffer_size);
 
     for (int i = 0; i < (this->width * this->height); i++)
     {
@@ -242,7 +245,7 @@ void Vid2ASCII::BufferRenderer::start_renderer()
     cap.release();
 
     // prints performance after finishing video
-    double avg_time = this->perfChecker.get_avg_frame_time();
+    double avg_time = this->perf_checker.get_avg_frame_time();
     std::cout << "Average frame time: " << avg_time << "ms" << std::endl;
 }
 

@@ -21,7 +21,7 @@ namespace Vid2ASCII
     public:
         MediaLoader(Options);
 
-        MediaInfo mediaInfo;
+        MediaInfo media_info;
         std::string open_file(std::string);
     };
 }
