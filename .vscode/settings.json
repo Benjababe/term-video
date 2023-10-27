@@ -88,7 +88,16 @@
         "string_view": "cpp",
         "ranges": "cpp",
         "span": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "any": "cpp",
+        "bitset": "cpp",
+        "cinttypes": "cpp",
+        "unordered_set": "cpp",
+        "source_location": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "typeindex": "cpp",
+        "variant": "cpp"
     },
     "cmake.configureOnOpen": false,
     "C_Cpp.dimInactiveRegions": true

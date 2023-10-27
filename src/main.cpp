@@ -15,9 +15,9 @@
 #include "renderer.hpp"
 #include "terminal.hpp"
 
-void play_audio(Vid2ASCII::Options opts)
+void play_audio(Vid2ASCII::AudioPlayer audioPlayer, Vid2ASCII::Options opts)
 {
-    Vid2ASCII::Media::Audio::play_file();
+    audioPlayer.play_file();
 }
 
 void play_video(Vid2ASCII::Options opts)
@@ -47,14 +47,23 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    std::string res = Vid2ASCII::Media::Audio::open_file(opts);
+    Vid2ASCII::MediaLoader mediaLoader(opts);
+    std::string res = mediaLoader.open_file(opts.filename);
     if (res.length() > 0)
     {
         std::cout << res << std::endl;
         return 0;
     }
 
-    std::thread thread_audio(play_audio, opts);
+    Vid2ASCII::AudioPlayer audioPlayer(mediaLoader.mediaInfo);
+    res = audioPlayer.decode_file(opts);
+    if (res.length() > 0)
+    {
+        std::cout << res << std::endl;
+        return 0;
+    }
+
+    std::thread thread_audio(play_audio, audioPlayer, opts);
     std::thread thread_video(play_video, opts);
 
     thread_audio.join();

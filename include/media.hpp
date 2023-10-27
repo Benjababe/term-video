@@ -10,18 +10,20 @@ extern "C"
 
 namespace Vid2ASCII
 {
-    namespace Media
+    struct MediaInfo
     {
-        struct MediaInfo
-        {
-            std::string file_path;
-            AVFormatContext *format_ctx;
-        };
+        std::string file_path;
+        AVFormatContext *format_ctx;
+    };
 
-        extern MediaInfo mediaInfo;
+    class MediaLoader
+    {
+    public:
+        MediaLoader(Options);
 
-        std::string open_file(Options);
-    }
+        MediaInfo mediaInfo;
+        std::string open_file(std::string);
+    };
 }
 
 #endif

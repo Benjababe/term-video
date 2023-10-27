@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include "media.hpp"
 #include "options.hpp"
 
 extern "C"
@@ -16,28 +17,26 @@ extern "C"
 
 namespace Vid2ASCII
 {
-    namespace Media
+    struct AudioInfo
     {
-        namespace Audio
-        {
-            struct AudioInfo
-            {
-                const AVCodec *decoder;
-                AVFormatContext *format_ctx;
-                AVCodecContext *codec_ctx;
-                AVStream *stream;
-                AVPacket *packet;
-                AVFrame *frame;
-                SwrContext *swr;
-                AVAudioFifo *buffer;
-            };
+        AVFormatContext *format_ctx;
+        AVStream *stream;
+        AVAudioFifo *buffer;
+    };
 
-            std::string get_audio_stream(std::string);
-            std::string open_file(Options);
-            std::string decode_file();
-            void play_file();
-        }
-    }
+    class AudioPlayer
+    {
+    private:
+        AudioInfo audioInfo;
+        std::string get_decoder(const AVCodec **, AVCodecContext **, SwrContext **);
+        std::string write_packet_to_buffer(AVCodecContext *, SwrContext *, AVPacket *, AVFrame *);
+
+    public:
+        AudioPlayer(MediaInfo);
+        std::string get_audio_stream(std::string);
+        std::string decode_file(Options);
+        void play_file();
+    };
 }
 
 #endif
