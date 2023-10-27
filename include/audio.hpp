@@ -28,12 +28,12 @@ namespace Vid2ASCII
     {
     private:
         AudioInfo audioInfo;
+        std::string get_audio_stream(std::string);
         std::string get_decoder(const AVCodec **, AVCodecContext **, SwrContext **);
         std::string write_packet_to_buffer(AVCodecContext *, SwrContext *, AVPacket *, AVFrame *);
 
     public:
         AudioPlayer(MediaInfo);
-        std::string get_audio_stream(std::string);
         std::string decode_file(Options);
         void play_file();
     };

@@ -15,7 +15,7 @@
 #include "renderer.hpp"
 #include "terminal.hpp"
 
-void play_audio(Vid2ASCII::AudioPlayer audioPlayer, Vid2ASCII::Options opts)
+void play_audio(Vid2ASCII::AudioPlayer audioPlayer)
 {
     audioPlayer.play_file();
 }
@@ -63,7 +63,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    std::thread thread_audio(play_audio, audioPlayer, opts);
+    std::thread thread_audio(play_audio, audioPlayer);
     std::thread thread_video(play_video, opts);
 
     thread_audio.join();
