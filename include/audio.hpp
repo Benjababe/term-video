@@ -16,24 +16,27 @@ extern "C"
 
 namespace Vid2ASCII
 {
-    namespace AudioPlayer
+    namespace Media
     {
-        struct AudioInfo
+        namespace Audio
         {
-            const AVCodec *decoder;
-            AVFormatContext *format_ctx;
-            AVCodecContext *codec_ctx;
-            AVStream *stream;
-            AVPacket *packet;
-            AVFrame *frame;
-            SwrContext *swr;
-            AVAudioFifo *buffer;
-        };
+            struct AudioInfo
+            {
+                const AVCodec *decoder;
+                AVFormatContext *format_ctx;
+                AVCodecContext *codec_ctx;
+                AVStream *stream;
+                AVPacket *packet;
+                AVFrame *frame;
+                SwrContext *swr;
+                AVAudioFifo *buffer;
+            };
 
-        std::string get_audio_stream(std::string);
-        std::string open_file(Options);
-        std::string decode_file();
-        void play_file();
+            std::string get_audio_stream(std::string);
+            std::string open_file(Options);
+            std::string decode_file();
+            void play_file();
+        }
     }
 }
 

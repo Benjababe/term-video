@@ -9,6 +9,7 @@
 #include "audio.hpp"
 #include "buffer_renderer.hpp"
 #include "export.hpp"
+#include "media.hpp"
 #include "optimiser.hpp"
 #include "options.hpp"
 #include "renderer.hpp"
@@ -16,7 +17,7 @@
 
 void play_audio(Vid2ASCII::Options opts)
 {
-    Vid2ASCII::AudioPlayer::play_file();
+    Vid2ASCII::Media::Audio::play_file();
 }
 
 void play_video(Vid2ASCII::Options opts)
@@ -46,7 +47,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    std::string res = Vid2ASCII::AudioPlayer::open_file(opts);
+    std::string res = Vid2ASCII::Media::Audio::open_file(opts);
     if (res.length() > 0)
     {
         std::cout << res << std::endl;
