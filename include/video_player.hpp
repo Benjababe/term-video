@@ -23,11 +23,9 @@ namespace TermVideo
     {
     private:
         Renderer *renderer;
-        BufferRenderer *buffered_renderer;
-        bool use_buffer;
 
     public:
-        VideoPlayer(MediaInfo, Options);
+        std::string init_player(Options);
         void play_file();
     };
 }

@@ -9,7 +9,6 @@ TermVideo::Renderer::Renderer() {}
 /**
  * @brief Construct a new Renderer:: Renderer object
  *
- * @param media_info File information extracted from FFmpeg
  * @param frames_to_skip Frames to skip for every 1 frame. Reduces flickering effect
  * @param width Width to render ASCII output
  * @param height Height to render ASCII output
@@ -18,9 +17,9 @@ TermVideo::Renderer::Renderer() {}
  * @param filename Video file to be converted into ASCII
  * @param char_set Character set to be used for ASCII conversion
  */
-TermVideo::Renderer::Renderer(MediaInfo media_info, Options opts)
+TermVideo::Renderer::Renderer(Options opts)
 {
-    this->video_info.format_ctx = media_info.format_ctx;
+    this->video_info.sws_ctx = nullptr;
 
     this->frames_to_skip = opts.frames_to_skip;
     this->print_colour = opts.print_colour;
@@ -35,6 +34,7 @@ TermVideo::Renderer::Renderer(MediaInfo media_info, Options opts)
     this->optimiser = Optimiser(col_threshold);
     this->perf_checker = PerformanceChecker();
     this->ready = false;
+    this->term_resized = false;
 }
 
 /**
@@ -118,9 +118,8 @@ void TermVideo::Renderer::frame_to_ascii(
 }
 
 /**
- * @brief Downscales a frame to better fix ASCII characters & size
- *
- * @param frame Frame to be downscaled & converted into ASCII
+ * @brief Downscales a frame to better fix ASCII characters & size. Uses opencv4.
+ * @param frame Frame to be downscaled.
  */
 void TermVideo::Renderer::frame_downscale(cv::Mat &frame)
 {
@@ -154,26 +153,80 @@ void TermVideo::Renderer::frame_downscale(cv::Mat &frame)
 }
 
 /**
- * @brief Waits for frametime sync before resuming program
- *
- * @param frametime_ns Time given for each frame in nanoseconds
+ * @brief Downscales a frame to better fix ASCII characters & size. Uses ffmpeg.
+ * @param frame Frame to be downscaled
  */
-void TermVideo::Renderer::wait_for_frame(int64 frametime_ns)
+void TermVideo::Renderer::frame_downscale(AVFrame *frame)
 {
-    this->next_frame += std::chrono::nanoseconds(frametime_ns);
+    AVPixelFormat output_format = AV_PIX_FMT_BGR24;
+
+    if (this->video_info.sws_ctx == nullptr || this->term_resized)
+    {
+        int new_width = frame->width,
+            new_height = frame->height;
+
+        if (this->force_aspect && frame->height > this->height)
+        {
+            new_height = this->height;
+            new_width = (int)std::min(
+                (double)frame->width * ((double)this->height / frame->height) * 2,
+                (double)this->width);
+            this->padding_x = this->width - new_width;
+            this->padding_x = (this->padding_x / 2) + (this->padding_x & 1);
+        }
+        else if (frame->width > this->width)
+        {
+            new_width = this->width;
+            new_height = this->height;
+        }
+
+        this->video_info.colour_channels = 3;
+        this->video_info.new_width = new_width;
+        this->video_info.new_height = new_height;
+        this->video_info.sws_ctx = sws_getContext(
+            frame->width, frame->height, (AVPixelFormat)frame->format,
+            new_width, new_height, output_format,
+            SWS_BILINEAR,
+            nullptr, nullptr, nullptr);
+
+        this->term_resized = false;
+    }
+
+    if (this->video_info.new_width != frame->width && this->video_info.new_height != frame->height)
+    {
+        AVFrame *resized_frame = av_frame_alloc();
+        resized_frame->format = output_format;
+        resized_frame->width = this->video_info.new_width;
+        resized_frame->height = this->video_info.new_height;
+
+        if (av_frame_get_buffer(resized_frame, 1) < 0)
+            return;
+
+        sws_scale(this->video_info.sws_ctx,
+                  frame->data, frame->linesize,
+                  0, frame->height,
+                  resized_frame->data, resized_frame->linesize);
+
+        av_frame_unref(frame);
+        *frame = *resized_frame;
+    }
+}
+
+/**
+ * @brief Waits for frametime sync before resuming program
+ */
+void TermVideo::Renderer::wait_for_frame()
+{
+    this->next_frame += std::chrono::nanoseconds(this->video_info.frametime_ns);
     std::this_thread::sleep_until(this->next_frame);
 }
 
 /**
- * @brief Converts a video into ASCII frames
- *
+ * @brief Converts a video into ASCII frames. Uses opencv4
  * @param cap Video file to be converted
  */
-void TermVideo::Renderer::video_to_ascii(cv::VideoCapture cap)
+void TermVideo::Renderer::process_video(cv::VideoCapture cap)
 {
-    double fps = cap.get(cv::CAP_PROP_FPS);
-    int64 frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
-
     while (1)
     {
         cv::Mat frame;
@@ -197,26 +250,120 @@ void TermVideo::Renderer::video_to_ascii(cv::VideoCapture cap)
 
         // refetch terminal size every 4 frames
         if (frame_count % 4 == 0)
-            get_terminal_size(this->width, this->height);
+            get_terminal_size(this->width, this->height, this->term_resized);
 
         // wait for next interval before processing
-        this->wait_for_frame(frametime_ns);
+        this->wait_for_frame();
+    }
+}
+
+/**
+ * @brief Converts a video into ASCII frames. Uses FFmpeg
+ */
+void TermVideo::Renderer::process_video()
+{
+    AVFrame *frame = av_frame_alloc();
+    AVPacket packet;
+
+    int frame_count = 0;
+
+    while (av_read_frame(this->video_info.format_ctx, &packet) >= 0)
+    {
+        // skips if stream isn't the main video
+        if (packet.stream_index != this->video_info.stream->index)
+            continue;
+        // skip if there are issues converting the packet
+        if (avcodec_send_packet(this->video_info.codec_ctx, &packet))
+            continue;
+        if (avcodec_receive_frame(this->video_info.codec_ctx, frame))
+            continue;
+
+        // reduces video resolution to fit the terminal
+        this->frame_downscale(frame);
+
+        // convert pixels and store to ascii_frame
+        std::string ascii_frame;
+        this->frame_to_ascii(
+            ascii_frame,
+            frame->data[0],
+            frame->width, frame->height,
+            this->video_info.colour_channels);
+        std::cout << "\r" << ascii_frame;
+
+        av_frame_unref(frame);
+        av_packet_unref(&packet);
+
+        // refetch terminal size every 4 frames
+        if (++frame_count % 4 == 0)
+            get_terminal_size(this->width, this->height, this->term_resized);
+
+        this->wait_for_frame();
     }
 }
 
 /**
  * @brief Initialises values for the renderer
- *
  */
 void TermVideo::Renderer::init_renderer()
 {
-    set_terminal_title("Video to ASCII");
+    set_terminal_title("term-video");
     hide_terminal_cursor();
-    get_terminal_size(this->width, this->height);
+    get_terminal_size(this->width, this->height, this->term_resized);
     init_terminal_col(this->print_colour);
     cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
 
     this->ready = true;
+}
+
+/**
+ * @brief Retrieves FFmpeg video decoder
+ * @return std::string Error string
+ */
+std::string TermVideo::Renderer::get_decoder()
+{
+    int ret;
+
+    // Sets frametime to know how long to delay per frame
+    double fps = av_q2d(this->video_info.stream->r_frame_rate);
+    this->video_info.frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
+
+    this->video_info.codec_ctx = avcodec_alloc_context3(this->video_info.decoder);
+    avcodec_parameters_to_context(this->video_info.codec_ctx, this->video_info.stream->codecpar);
+
+    ret = avcodec_open2(this->video_info.codec_ctx, this->video_info.decoder, nullptr);
+    if (ret < 0)
+        return "Decoder could not be opened";
+
+    return "";
+}
+
+/**
+ * @brief Opens input stream to video file set in constructor
+ * @return std::string Error string
+ */
+std::string TermVideo::Renderer::open_file()
+{
+    this->video_info.format_ctx = nullptr;
+    int ret = avformat_open_input(&this->video_info.format_ctx, this->filename.c_str(), nullptr, nullptr);
+    if (ret < 0)
+        return "Unable to open media file!";
+
+    ret = avformat_find_stream_info(this->video_info.format_ctx, nullptr);
+    if (ret < 0)
+        return "Unable to find stream info!";
+
+    int stream_index = av_find_best_stream(
+        this->video_info.format_ctx,
+        AVMEDIA_TYPE_VIDEO,
+        -1,
+        -1,
+        &this->video_info.decoder,
+        0);
+    if (stream_index < 0)
+        return "No audio streams found in file!";
+
+    this->video_info.stream = this->video_info.format_ctx->streams[stream_index];
+    return "";
 }
 
 /**
@@ -228,9 +375,13 @@ void TermVideo::Renderer::start_renderer()
     if (!this->ready)
         return;
 
+#ifdef __USE_FFMPEG
+    this->process_video();
+#elif defined(__USE_OPENCV)
     cv::VideoCapture cap(this->filename);
-    this->video_to_ascii(cap);
+    this->process_video(cap);
     cap.release();
+#endif
 
     // prints performance after finishing video
     double avg_time = this->perf_checker.get_avg_frame_time();

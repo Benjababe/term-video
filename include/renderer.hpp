@@ -1,3 +1,5 @@
+#define __USE_FFMPEG
+
 #ifndef RENDERER_H
 #define RENDERER_H
 
@@ -19,6 +21,17 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/utils/logger.hpp>
 
+extern "C"
+{
+#include <libswscale/swscale.h>
+#include <libavcodec/avcodec.h>
+#include <libavutil/imgutils.h>
+#include <libavutil/parseutils.h>
+#include <libavutil/pixdesc.h>
+#include <libavutil/rational.h>
+#include <libavformat/avformat.h>
+}
+
 typedef unsigned long ULONG;
 typedef unsigned char uchar;
 
@@ -26,17 +39,27 @@ namespace TermVideo
 {
     struct VideoInfo
     {
-        AVFormatContext *format_ctx;
+        const AVCodec *decoder;
         AVStream *stream;
+        AVFormatContext *format_ctx;
+        AVCodecContext *codec_ctx;
+        SwsContext *sws_ctx;
+
+        int64 frametime_ns;
+        int colour_channels;
+        int new_width;
+        int new_height;
     };
 
     class Renderer
     {
     public:
         Renderer();
-        Renderer(MediaInfo, Options);
-        void init_renderer();
-        void start_renderer();
+        Renderer(Options);
+        virtual void init_renderer();
+        virtual void start_renderer();
+        std::string open_file();
+        std::string get_decoder();
 
         Optimiser optimiser;
         PerformanceChecker perf_checker;
@@ -44,7 +67,8 @@ namespace TermVideo
     protected:
         char pixel_to_ascii(uchar, uchar, uchar);
         void frame_downscale(cv::Mat &);
-        void wait_for_frame(int64);
+        void frame_downscale(AVFrame *);
+        void wait_for_frame();
 
         VideoInfo video_info;
         int frames_to_skip;
@@ -53,6 +77,7 @@ namespace TermVideo
         bool print_colour;
         bool force_aspect;
         bool ready;
+        bool term_resized;
         bool force_avg_luminance;
         uchar col_threshold;
         uchar prev_r, prev_g, prev_b;
@@ -61,7 +86,9 @@ namespace TermVideo
 
     private:
         void frame_to_ascii(std::string &, uchar *, const int, const int, const int);
-        void video_to_ascii(cv::VideoCapture);
+        void process_video(cv::VideoCapture);
+
+        void process_video();
     };
 }
 

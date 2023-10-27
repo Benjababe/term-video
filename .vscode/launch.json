@@ -34,7 +34,7 @@
             "program": "${command:cmake.launchTargetPath}",
             "args": [
                 "--colour",
-                "--buffer",
+                // "--buffer",
                 "--threshold",
                 "8",
                 "--skip-frames",
@@ -42,7 +42,7 @@
                 "--audio-language",
                 "jpn",
                 "--file",
-                "./data/roman.mkv"
+                "./data/hidaneko.mp4"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

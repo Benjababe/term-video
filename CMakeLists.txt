@@ -13,8 +13,9 @@ pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET
     libavformat
     libavcodec
     libavutil
-    libswresample)
-pkg_check_modules(OPENCV REQUIRED IMPORTED_TARGET
+    libswresample
+    libswscale)
+pkg_check_modules(OPENCV IMPORTED_TARGET
     opencv4)
 
 include_directories(

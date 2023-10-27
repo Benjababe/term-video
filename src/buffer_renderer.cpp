@@ -3,7 +3,6 @@
 /**
  * @brief Construct a new BufferRenderer:: BufferRenderer object
  *
- * @param media_info File information extracted from FFmpeg
  * @param frames_to_skip Frames to skip for every 1 frame. Reduces flickering effect
  * @param width Width to render ASCII output
  * @param height Height to render ASCII output
@@ -12,10 +11,8 @@
  * @param filename Video file to be converted into ASCII
  * @param char_set Character set to be used for ASCII conversion
  */
-TermVideo::BufferRenderer::BufferRenderer(MediaInfo media_info, Options opts)
+TermVideo::BufferRenderer::BufferRenderer(Options opts)
 {
-    this->video_info.format_ctx = media_info.format_ctx;
-
     this->frames_to_skip = opts.frames_to_skip;
     this->print_colour = opts.print_colour;
     this->force_aspect = opts.force_aspect;
@@ -139,11 +136,8 @@ void TermVideo::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int wi
  *
  * @param cap Video file to be converted
  */
-void TermVideo::BufferRenderer::video_to_ascii(cv::VideoCapture cap)
+void TermVideo::BufferRenderer::process_video(cv::VideoCapture cap)
 {
-    double fps = cap.get(cv::CAP_PROP_FPS);
-    int64 frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
-
     while (1)
     {
         cv::Mat frame;
@@ -168,14 +162,14 @@ void TermVideo::BufferRenderer::video_to_ascii(cv::VideoCapture cap)
             this->check_resize();
 
         // wait for next interval before processing
-        this->wait_for_frame(frametime_ns);
+        this->wait_for_frame();
     }
 }
 
 void TermVideo::BufferRenderer::check_resize()
 {
     int new_width, new_height;
-    get_terminal_size(new_width, new_height);
+    get_terminal_size(new_width, new_height, this->term_resized);
 
     if (this->width != new_width || this->height != new_height)
     {
@@ -189,9 +183,9 @@ void TermVideo::BufferRenderer::check_resize()
  */
 void TermVideo::BufferRenderer::init_renderer()
 {
-    set_terminal_title("Video to ASCII (Buffer)");
+    set_terminal_title("term-video (Buffer)");
     hide_terminal_cursor();
-    get_terminal_size(this->width, this->height);
+    get_terminal_size(this->width, this->height, this->term_resized);
     init_terminal_col(this->print_colour);
     cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
 
@@ -218,7 +212,7 @@ void TermVideo::BufferRenderer::init_renderer()
     {
         if (!has_colors())
         {
-            std::cout << "Terminal does not support colour output!" << std::endl;
+            std::cerr << "Terminal does not support colour output!" << std::endl;
             this->ready = false;
             return;
         }
@@ -241,7 +235,7 @@ void TermVideo::BufferRenderer::start_renderer()
         return;
 
     cv::VideoCapture cap(this->filename);
-    this->video_to_ascii(cap);
+    this->process_video(cap);
     cap.release();
 
     // prints performance after finishing video

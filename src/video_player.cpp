@@ -2,27 +2,28 @@
 
 namespace TermVideo
 {
-    VideoPlayer::VideoPlayer(MediaInfo media_info, Options opts)
+    std::string VideoPlayer::init_player(Options opts)
     {
-        this->use_buffer = opts.use_buffer;
-
         if (opts.use_buffer)
-        {
-            this->buffered_renderer = new BufferRenderer(media_info, opts);
-            this->buffered_renderer->init_renderer();
-        }
+            this->renderer = new BufferRenderer(opts);
         else
-        {
-            this->renderer = new Renderer(media_info, opts);
-            this->renderer->init_renderer();
-        }
+            this->renderer = new Renderer(opts);
+
+        this->renderer->init_renderer();
+
+        std::string res = this->renderer->open_file();
+        if (res.length() > 0)
+            return res;
+
+        res = this->renderer->get_decoder();
+        if (res.length() > 0)
+            return res;
+
+        return "";
     }
 
     void VideoPlayer::play_file()
     {
-        if (this->use_buffer)
-            this->buffered_renderer->start_renderer();
-        else
-            this->renderer->start_renderer();
+        this->renderer->start_renderer();
     }
 }

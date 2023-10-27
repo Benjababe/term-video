@@ -20,19 +20,25 @@ void TermVideo::hide_terminal_cursor()
 }
 
 // https://stackoverflow.com/questions/23369503/get-size-of-terminal-window-rows-columns/62485211#62485211
-void TermVideo::get_terminal_size(int &width, int &height)
+void TermVideo::get_terminal_size(int &width, int &height, bool &term_resized)
 {
 #if defined(_WIN32)
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
-    width = abs((int)(csbi.srWindow.Right - csbi.srWindow.Left + 1));
-    height = abs((int)(csbi.srWindow.Bottom - csbi.srWindow.Top + 1));
+    int new_width = abs((int)(csbi.srWindow.Right - csbi.srWindow.Left + 1));
+    int new_height = abs((int)(csbi.srWindow.Bottom - csbi.srWindow.Top + 1));
 #elif defined(__linux__)
     struct winsize w;
     ioctl(fileno(stdout), TIOCGWINSZ, &w);
-    width = (int)(w.ws_col);
-    height = (int)(w.ws_row);
+    int new_width = (int)(w.ws_col);
+    int new_height = (int)(w.ws_row);
 #endif
+
+    if (new_width != width || new_height != height)
+        term_resized = true;
+
+    width = new_width;
+    height = new_height;
 }
 
 void TermVideo::init_terminal_col(bool print_colour)

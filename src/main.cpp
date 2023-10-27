@@ -27,6 +27,8 @@ void play_video(TermVideo::VideoPlayer video_player)
 
 int main(int argc, char **argv)
 {
+    std::string res;
+
     TermVideo::Options opts;
     int err_code = TermVideo::parse_arguments(opts, argc, argv);
 
@@ -37,7 +39,7 @@ int main(int argc, char **argv)
     }
 
     TermVideo::AudioPlayer audio_player;
-    std::string res = audio_player.init_player(opts);
+    res = audio_player.init_player(opts);
     if (res.length() > 0)
     {
         std::cerr << res << std::endl;
@@ -52,10 +54,10 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    // std::thread thread_audio(play_audio, audio_player);
+    std::thread thread_audio(play_audio, audio_player);
     std::thread thread_video(play_video, video_player);
 
-    // thread_audio.join();
+    thread_audio.join();
     thread_video.join();
 
     return 0;

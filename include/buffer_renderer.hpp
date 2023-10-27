@@ -37,13 +37,13 @@ namespace TermVideo
     class BufferRenderer : public Renderer
     {
     public:
-        BufferRenderer(MediaInfo, Options);
-        void init_renderer();
-        void start_renderer();
+        BufferRenderer(Options);
+        void init_renderer() override;
+        void start_renderer() override;
 
     private:
         void frame_to_ascii(uchar *, const int, const int, const int);
-        void video_to_ascii(cv::VideoCapture);
+        void process_video(cv::VideoCapture);
         void write_to_buffer(const int, const int, uchar, WORD);
         void check_resize();
 
