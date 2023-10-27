@@ -5,7 +5,7 @@ namespace TermVideo
     MediaLoader::MediaLoader(Options opts)
     {
         this->media_info.file_path = opts.filename;
-        this->media_info.format_ctx = avformat_alloc_context();
+        this->media_info.format_ctx = nullptr;
     }
 
     std::string MediaLoader::open_file(std::string file_path)

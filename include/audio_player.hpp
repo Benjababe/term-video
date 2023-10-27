@@ -35,7 +35,7 @@ namespace TermVideo
 
     public:
         AudioPlayer();
-        std::string open_file(Options);
+        std::string init_player(Options);
         void play_file();
     };
 }

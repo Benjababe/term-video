@@ -53,7 +53,7 @@ namespace TermVideo
         return "";
     }
 
-    std::string AudioPlayer::open_file(Options opts)
+    std::string AudioPlayer::init_player(Options opts)
     {
         int ret = avformat_open_input(
             &this->audio_info.format_ctx,
