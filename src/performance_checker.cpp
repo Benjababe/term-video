@@ -4,7 +4,6 @@ TermVideo::PerformanceChecker::PerformanceChecker()
 {
     this->frame_count = 0;
     this->frame_time_total = 0;
-    // this->start_time = std::chrono::high_resolution_clock::now();
 }
 
 void TermVideo::PerformanceChecker::start_frame_time()

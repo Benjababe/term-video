@@ -179,7 +179,6 @@ namespace TermVideo
         {
         }
 
-        av_freep(this->audio_info.stream);
         av_audio_fifo_free(this->audio_info.buffer);
         ma_device_uninit(&device);
     }
