@@ -1,6 +1,6 @@
 #include "media.hpp"
 
-namespace Vid2ASCII
+namespace TermVideo
 {
     MediaLoader::MediaLoader(Options opts)
     {

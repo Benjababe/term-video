@@ -1,10 +1,9 @@
 #include "video_player.hpp"
 
-namespace Vid2ASCII
+namespace TermVideo
 {
     VideoPlayer::VideoPlayer(MediaInfo media_info, Options opts)
     {
-        this->video_info.format_ctx = media_info.format_ctx;
         this->use_buffer = opts.use_buffer;
 
         if (opts.use_buffer)

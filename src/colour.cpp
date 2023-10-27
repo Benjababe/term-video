@@ -10,7 +10,7 @@
  * @param force_avg_luminance Use the average of the RGB values instead of the relative luminance
  * @return double Approximate luminance value between 0 & 255
  */
-uchar Vid2ASCII::get_luminance_approximate(uchar r, uchar g, uchar b, bool force_avg_luminance)
+uchar TermVideo::get_luminance_approximate(uchar r, uchar g, uchar b, bool force_avg_luminance)
 {
     double r_mult = (force_avg_luminance) ? 0.3333 : 0.2126,
            g_mult = (force_avg_luminance) ? 0.3333 : 0.7152,
@@ -29,7 +29,7 @@ uchar Vid2ASCII::get_luminance_approximate(uchar r, uchar g, uchar b, bool force
  * @param b Blueness value (0-255)
  * @return WORD
  */
-WORD Vid2ASCII::get_win32_col(uchar r, uchar g, uchar b)
+WORD TermVideo::get_win32_col(uchar r, uchar g, uchar b)
 {
     WORD col = 0;
     uchar luminance = get_luminance_approximate(r, g, b, true);
@@ -52,7 +52,7 @@ WORD Vid2ASCII::get_win32_col(uchar r, uchar g, uchar b)
  * @param b Blueness value (0-255)
  * @return int Index of the colour pair (0-255)
  */
-int Vid2ASCII::get_ncurses_col_index(uchar r, uchar g, uchar b, short step)
+int TermVideo::get_ncurses_col_index(uchar r, uchar g, uchar b, short step)
 {
     int divisions = step + 1;
 
@@ -78,7 +78,7 @@ int Vid2ASCII::get_ncurses_col_index(uchar r, uchar g, uchar b, short step)
  * @param c Character to be encoded
  * @return std::string ANSI colour encoded character
  */
-std::string Vid2ASCII::get_char_ansi_col(uchar r, uchar g, uchar b, char c)
+std::string TermVideo::get_char_ansi_col(uchar r, uchar g, uchar b, char c)
 {
     if (c != ' ')
     {

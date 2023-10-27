@@ -15,7 +15,7 @@ typedef long long int64;
 typedef int64_t int64;
 #endif
 
-namespace Vid2ASCII
+namespace TermVideo
 {
     class PerformanceChecker
     {

@@ -8,7 +8,7 @@ extern "C"
 #include <libavformat/avformat.h>
 }
 
-namespace Vid2ASCII
+namespace TermVideo
 {
     struct MediaInfo
     {

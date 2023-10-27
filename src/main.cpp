@@ -16,32 +16,20 @@
 #include "terminal.hpp"
 #include "video_player.hpp"
 
-void play_audio(Vid2ASCII::AudioPlayer audio_player)
+void play_audio(TermVideo::AudioPlayer audio_player)
 {
     audio_player.play_file();
 }
 
-void play_video(Vid2ASCII::VideoPlayer video_player)
+void play_video(TermVideo::VideoPlayer video_player)
 {
-    // if (opts.use_buffer)
-    // {
-    //     Vid2ASCII::BufferRenderer bRenderer(opts);
-    //     bRenderer.init_renderer();
-    //     bRenderer.start_renderer();
-    // }
-    // else
-    // {
-    //     Vid2ASCII::Renderer renderer(opts);
-    //     renderer.init_renderer();
-    //     renderer.start_renderer();
-    // }
     video_player.play_file();
 }
 
 int main(int argc, char **argv)
 {
-    Vid2ASCII::Options opts;
-    int err_code = Vid2ASCII::parse_arguments(opts, argc, argv);
+    TermVideo::Options opts;
+    int err_code = TermVideo::parse_arguments(opts, argc, argv);
 
     if (err_code < 0)
     {
@@ -49,7 +37,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    Vid2ASCII::MediaLoader media_loader(opts);
+    TermVideo::MediaLoader media_loader(opts);
     std::string res = media_loader.open_file(opts.filename);
     if (res.length() > 0)
     {
@@ -57,7 +45,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    Vid2ASCII::AudioPlayer audio_player(media_loader.media_info);
+    TermVideo::AudioPlayer audio_player(media_loader.media_info);
     res = audio_player.decode_file(opts);
     if (res.length() > 0)
     {
@@ -65,7 +53,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    Vid2ASCII::VideoPlayer video_player(media_loader.media_info, opts);
+    TermVideo::VideoPlayer video_player(media_loader.media_info, opts);
 
     std::thread thread_audio(play_audio, audio_player);
     std::thread thread_video(play_video, video_player);

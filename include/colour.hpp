@@ -18,7 +18,7 @@
 typedef unsigned char uchar;
 typedef unsigned short WORD;
 
-namespace Vid2ASCII
+namespace TermVideo
 {
     uchar get_luminance_approximate(uchar, uchar, uchar, bool);
     WORD get_win32_col(uchar, uchar, uchar);

@@ -17,7 +17,7 @@
 #include <thread>
 #include <vector>
 
-namespace Vid2ASCII
+namespace TermVideo
 {
     void set_terminal_title(const char *);
     void hide_terminal_cursor();

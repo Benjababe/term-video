@@ -32,7 +32,7 @@ typedef unsigned long ULONG;
 typedef unsigned char uchar;
 typedef unsigned short WORD;
 
-namespace Vid2ASCII
+namespace TermVideo
 {
     class BufferRenderer : public Renderer
     {

@@ -22,7 +22,7 @@
 typedef unsigned long ULONG;
 typedef unsigned char uchar;
 
-namespace Vid2ASCII
+namespace TermVideo
 {
     struct VideoInfo
     {

@@ -4,7 +4,7 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include "miniaudio.h"
 
-namespace Vid2ASCII
+namespace TermVideo
 {
     void data_callback(ma_device *p_device, void *p_output, const void *p_input, ma_uint32 frame_count)
     {

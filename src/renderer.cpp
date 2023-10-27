@@ -4,7 +4,7 @@
  * @brief Default Renderer constructor
  *
  */
-Vid2ASCII::Renderer::Renderer() {}
+TermVideo::Renderer::Renderer() {}
 
 /**
  * @brief Construct a new Renderer:: Renderer object
@@ -18,7 +18,7 @@ Vid2ASCII::Renderer::Renderer() {}
  * @param filename Video file to be converted into ASCII
  * @param char_set Character set to be used for ASCII conversion
  */
-Vid2ASCII::Renderer::Renderer(MediaInfo media_info, Options opts)
+TermVideo::Renderer::Renderer(MediaInfo media_info, Options opts)
 {
     this->video_info.format_ctx = media_info.format_ctx;
 
@@ -45,7 +45,7 @@ Vid2ASCII::Renderer::Renderer(MediaInfo media_info, Options opts)
  * @param pixel_b Brightness of blue pixel, ranges 0-255
  * @return char Appropriate ASCII character for pixel
  */
-char Vid2ASCII::Renderer::pixel_to_ascii(uchar pixel_r, uchar pixel_g, uchar pixel_b)
+char TermVideo::Renderer::pixel_to_ascii(uchar pixel_r, uchar pixel_g, uchar pixel_b)
 {
     uchar luminance = get_luminance_approximate(pixel_r, pixel_g, pixel_b, this->force_avg_luminance);
     double normalised_luminance = (double)luminance / 255;
@@ -71,7 +71,7 @@ char Vid2ASCII::Renderer::pixel_to_ascii(uchar pixel_r, uchar pixel_g, uchar pix
  * @param channels No of colour channels for each pixel
  * @return std::string
  */
-void Vid2ASCII::Renderer::frame_to_ascii(
+void TermVideo::Renderer::frame_to_ascii(
     std::string &ascii_output,
     uchar *frame_pixels,
     const int width,
@@ -122,7 +122,7 @@ void Vid2ASCII::Renderer::frame_to_ascii(
  *
  * @param frame Frame to be downscaled & converted into ASCII
  */
-void Vid2ASCII::Renderer::frame_downscale(cv::Mat &frame)
+void TermVideo::Renderer::frame_downscale(cv::Mat &frame)
 {
     const int max_width = this->width,
               max_height = this->height;
@@ -158,7 +158,7 @@ void Vid2ASCII::Renderer::frame_downscale(cv::Mat &frame)
  *
  * @param frametime_ns Time given for each frame in nanoseconds
  */
-void Vid2ASCII::Renderer::wait_for_frame(int64 frametime_ns)
+void TermVideo::Renderer::wait_for_frame(int64 frametime_ns)
 {
     this->next_frame += std::chrono::nanoseconds(frametime_ns);
     std::this_thread::sleep_until(this->next_frame);
@@ -169,7 +169,7 @@ void Vid2ASCII::Renderer::wait_for_frame(int64 frametime_ns)
  *
  * @param cap Video file to be converted
  */
-void Vid2ASCII::Renderer::video_to_ascii(cv::VideoCapture cap)
+void TermVideo::Renderer::video_to_ascii(cv::VideoCapture cap)
 {
     double fps = cap.get(cv::CAP_PROP_FPS);
     int64 frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
@@ -208,7 +208,7 @@ void Vid2ASCII::Renderer::video_to_ascii(cv::VideoCapture cap)
  * @brief Initialises values for the renderer
  *
  */
-void Vid2ASCII::Renderer::init_renderer()
+void TermVideo::Renderer::init_renderer()
 {
     set_terminal_title("Video to ASCII");
     hide_terminal_cursor();
@@ -223,7 +223,7 @@ void Vid2ASCII::Renderer::init_renderer()
  * @brief Starts the video conversion and display
  *
  */
-void Vid2ASCII::Renderer::start_renderer()
+void TermVideo::Renderer::start_renderer()
 {
     if (!this->ready)
         return;

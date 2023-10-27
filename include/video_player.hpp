@@ -17,18 +17,11 @@ extern "C"
 #include <libswresample/swresample.h>
 }
 
-namespace Vid2ASCII
+namespace TermVideo
 {
-    struct VideoInfo
-    {
-        AVFormatContext *format_ctx;
-        AVStream *stream;
-    };
-
     class VideoPlayer
     {
     private:
-        VideoInfo video_info;
         Renderer *renderer;
         BufferRenderer *buffered_renderer;
         bool use_buffer;

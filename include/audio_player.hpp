@@ -15,7 +15,7 @@ extern "C"
 #include <libavutil/audio_fifo.h>
 }
 
-namespace Vid2ASCII
+namespace TermVideo
 {
     struct AudioInfo
     {

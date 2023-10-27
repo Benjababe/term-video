@@ -1,6 +1,6 @@
 #include "options.hpp"
 
-int Vid2ASCII::parse_arguments(Vid2ASCII::Options &opts, int argc, char **argv)
+int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
 {
     opts.char_set = "@&%QWNM0gB$#DR8mHXKAUbGOpV4d9h6PkqwSE2]ayjxY5Zoen[ult13If}C{iF|(7J)vTLs?z/*cr!+<>;=^,_:'-.` ";
 

@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 
-namespace Vid2ASCII
+namespace TermVideo
 {
     void save_ascii_to_file(const std::string, const std::string);
 }

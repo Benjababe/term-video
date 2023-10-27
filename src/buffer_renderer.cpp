@@ -12,7 +12,7 @@
  * @param filename Video file to be converted into ASCII
  * @param char_set Character set to be used for ASCII conversion
  */
-Vid2ASCII::BufferRenderer::BufferRenderer(MediaInfo media_info, Options opts)
+TermVideo::BufferRenderer::BufferRenderer(MediaInfo media_info, Options opts)
 {
     this->video_info.format_ctx = media_info.format_ctx;
 
@@ -35,7 +35,7 @@ Vid2ASCII::BufferRenderer::BufferRenderer(MediaInfo media_info, Options opts)
 /**
  * @brief Sets optimised colours based on total number of colour supported by the terminal
  */
-void Vid2ASCII::BufferRenderer::set_curses_colors()
+void TermVideo::BufferRenderer::set_curses_colors()
 {
     if (COLORS == 8 || !can_change_color())
         return;
@@ -74,7 +74,7 @@ void Vid2ASCII::BufferRenderer::set_curses_colors()
  * @param height Height of the frame
  * @param channels No of colour channels for each pixel
  */
-void Vid2ASCII::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int width, const int height, const int channels)
+void TermVideo::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int width, const int height, const int channels)
 {
     this->perf_checker.start_frame_time();
 
@@ -95,7 +95,7 @@ void Vid2ASCII::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int wi
 
             if (this->print_colour)
             {
-                WORD attr = Vid2ASCII::get_win32_col(pixel_r, pixel_g, pixel_b);
+                WORD attr = TermVideo::get_win32_col(pixel_r, pixel_g, pixel_b);
                 this->write_to_buffer(row, col + this->padding_x, ascii, attr);
             }
             else
@@ -117,7 +117,7 @@ void Vid2ASCII::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int wi
 
             if (this->print_colour)
             {
-                int col_index = Vid2ASCII::get_ncurses_col_index(pixel_r, pixel_g, pixel_b, this->color_step_no);
+                int col_index = TermVideo::get_ncurses_col_index(pixel_r, pixel_g, pixel_b, this->color_step_no);
                 attron(COLOR_PAIR(col_index));
                 mvprintw(row, col + this->padding_x, "%c", ascii);
                 attroff(COLOR_PAIR(col_index));
@@ -139,7 +139,7 @@ void Vid2ASCII::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int wi
  *
  * @param cap Video file to be converted
  */
-void Vid2ASCII::BufferRenderer::video_to_ascii(cv::VideoCapture cap)
+void TermVideo::BufferRenderer::video_to_ascii(cv::VideoCapture cap)
 {
     double fps = cap.get(cv::CAP_PROP_FPS);
     int64 frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
@@ -172,7 +172,7 @@ void Vid2ASCII::BufferRenderer::video_to_ascii(cv::VideoCapture cap)
     }
 }
 
-void Vid2ASCII::BufferRenderer::check_resize()
+void TermVideo::BufferRenderer::check_resize()
 {
     int new_width, new_height;
     get_terminal_size(new_width, new_height);
@@ -187,7 +187,7 @@ void Vid2ASCII::BufferRenderer::check_resize()
  * @brief Initialises values for the renderer
  *
  */
-void Vid2ASCII::BufferRenderer::init_renderer()
+void TermVideo::BufferRenderer::init_renderer()
 {
     set_terminal_title("Video to ASCII (Buffer)");
     hide_terminal_cursor();
@@ -235,7 +235,7 @@ void Vid2ASCII::BufferRenderer::init_renderer()
  * @brief Starts the video conversion and display
  *
  */
-void Vid2ASCII::BufferRenderer::start_renderer()
+void TermVideo::BufferRenderer::start_renderer()
 {
     if (!this->ready)
         return;
@@ -250,7 +250,7 @@ void Vid2ASCII::BufferRenderer::start_renderer()
 }
 
 #if defined(_WIN32)
-void Vid2ASCII::BufferRenderer::write_to_buffer(const int row, const int col, uchar ascii, WORD attr)
+void TermVideo::BufferRenderer::write_to_buffer(const int row, const int col, uchar ascii, WORD attr)
 {
     this->buffer[row * this->width + col].Char.AsciiChar = ascii;
     this->buffer[row * this->width + col].Attributes = attr;

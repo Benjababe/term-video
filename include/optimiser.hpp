@@ -6,7 +6,7 @@
 
 typedef unsigned char uchar;
 
-namespace Vid2ASCII
+namespace TermVideo
 {
     class Optimiser
     {
