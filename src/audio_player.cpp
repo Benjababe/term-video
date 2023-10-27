@@ -12,9 +12,9 @@ namespace TermVideo
         av_audio_fifo_read(fifo, &p_output, frame_count);
     }
 
-    AudioPlayer::AudioPlayer(MediaInfo media_info)
+    AudioPlayer::AudioPlayer()
     {
-        this->audio_info.format_ctx = media_info.format_ctx;
+        this->audio_info.format_ctx = nullptr;
         this->audio_info.buffer = NULL;
     }
 
@@ -50,6 +50,27 @@ namespace TermVideo
             return "No audio streams found in file!";
 
         this->audio_info.stream = this->audio_info.format_ctx->streams[stream_index];
+        return "";
+    }
+
+    std::string AudioPlayer::open_file(Options opts)
+    {
+        int ret = avformat_open_input(
+            &this->audio_info.format_ctx,
+            opts.filename.c_str(),
+            nullptr,
+            nullptr);
+        if (ret < 0)
+            return "Unable to open media file!";
+
+        ret = avformat_find_stream_info(this->audio_info.format_ctx, nullptr);
+        if (ret < 0)
+            return "Unable to find stream info!";
+
+        std::string res = this->decode_file(opts);
+        if (res.length() > 0)
+            return res;
+
         return "";
     }
 

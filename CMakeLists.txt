@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
 
-set(PROJECT_NAME cpp_video_to_ascii)
+set(PROJECT_NAME term_video)
 project(${PROJECT_NAME} CXX)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
