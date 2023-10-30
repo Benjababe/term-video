@@ -35,14 +35,15 @@
             "args": [
                 "--colour",
                 // "--buffer",
+                "--force-aspect",
                 "--threshold",
-                "4",
+                "8",
                 "--skip-frames",
                 "0",
                 "--audio-language",
                 "jpn",
                 "--file",
-                "./data/hidaneko.mp4"
+                "./data/hidashort.mp4"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

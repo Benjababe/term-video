@@ -85,6 +85,7 @@ void TermVideo::Renderer::frame_to_ascii(
 
     for (int row = 0; row < height; row++)
     {
+        // left padding to fit aspect ratio
         if (this->force_aspect)
             ascii_output += std::string(this->padding_x, ' ');
 
@@ -112,8 +113,12 @@ void TermVideo::Renderer::frame_to_ascii(
             }
         }
 
+        // right padding to extend to next line
         if (this->force_aspect)
-            ascii_output += std::string(this->padding_x, ' ');
+        {
+            int rem_len = this->width - width - this->padding_x;
+            ascii_output += std::string(rem_len, ' ');
+        }
     }
 
     this->perf_checker.end_frame_time();
@@ -163,11 +168,13 @@ void TermVideo::Renderer::frame_downscale_ffmpeg(AVFrame *frame)
 {
     AVPixelFormat output_format = AV_PIX_FMT_BGR24;
 
+    // create scaler if doesn't exist or terminal has been resized
     if (this->video_info.sws_ctx == nullptr || this->term_resized)
     {
         int new_width = frame->width,
             new_height = frame->height;
 
+        // if using video's aspect ratio and video is taller than terminal
         if (this->force_aspect && frame->height > this->height)
         {
             new_height = this->height;
@@ -177,7 +184,12 @@ void TermVideo::Renderer::frame_downscale_ffmpeg(AVFrame *frame)
             this->padding_x = this->width - new_width;
             this->padding_x = (this->padding_x / 2) + (this->padding_x & 1);
         }
-        else if (frame->width > this->width)
+        // if using video's aspect ratio and video is wider than terminal
+        else if (this->force_aspect && frame->width > this->width)
+        {
+        }
+        // default case, fit to terminal size
+        else
         {
             new_width = this->width;
             new_height = this->height;
