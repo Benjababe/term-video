@@ -139,6 +139,9 @@ void TermVideo::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int wi
  */
 void TermVideo::BufferRenderer::process_video_opencv(cv::VideoCapture cap)
 {
+    double fps = cap.get(cv::CAP_PROP_FPS);
+    this->video_info.frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
+
     while (1)
     {
         cv::Mat frame;
