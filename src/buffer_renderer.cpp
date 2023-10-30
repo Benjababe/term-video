@@ -131,6 +131,7 @@ void TermVideo::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int wi
 #endif
 }
 
+#if defined(__USE_OPENCV)
 /**
  * @brief Converts a video into ASCII frames
  *
@@ -165,6 +166,65 @@ void TermVideo::BufferRenderer::process_video(cv::VideoCapture cap)
         this->wait_for_frame();
     }
 }
+#elif defined(__USE_FFMPEG)
+/**
+ * @brief Converts a video into ASCII frames. Uses FFmpeg
+ */
+void TermVideo::BufferRenderer::process_video()
+{
+    AVFrame *frame = av_frame_alloc();
+    AVPacket packet;
+
+    int frame_count = 0;
+    int skip_count = 0;
+
+    while (!av_read_frame(this->video_info.format_ctx, &packet))
+    {
+        // skips if stream isn't the main video
+        if (packet.stream_index != this->video_info.stream->index)
+        {
+            av_packet_unref(&packet);
+            continue;
+        }
+        // skip if there are issues feeding packet into decoder
+        if (avcodec_send_packet(this->video_info.codec_ctx, &packet))
+        {
+            av_packet_unref(&packet);
+            continue;
+        }
+        // skip if there are issues decoding the packet
+        if (avcodec_receive_frame(this->video_info.codec_ctx, frame))
+        {
+            av_frame_unref(frame);
+            continue;
+        }
+
+        // skip frames by user request
+        if (skip_count++ < this->frames_to_skip)
+            continue;
+        skip_count = 0;
+
+        // reduces video resolution to fit the terminal
+        this->frame_downscale(frame);
+
+        // convert pixels and store to ascii_frame
+        std::string ascii_frame;
+        this->frame_to_ascii(
+            frame->data[0],
+            frame->width, frame->height,
+            this->video_info.colour_channels);
+
+        av_frame_unref(frame);
+        av_packet_unref(&packet);
+
+        // refetch terminal size every interval
+        if (frame_count % FETCH_TERMINAL_INTERVAL == 0)
+            this->check_resize();
+
+        this->wait_for_frame();
+    }
+}
+#endif
 
 void TermVideo::BufferRenderer::check_resize()
 {
@@ -234,9 +294,13 @@ void TermVideo::BufferRenderer::start_renderer()
     if (!this->ready)
         return;
 
+#if defined(__USE_OPENCV)
     cv::VideoCapture cap(this->filename);
     this->process_video(cap);
     cap.release();
+#elif defined(__USE_FFMPEG)
+    this->process_video();
+#endif
 
     // prints performance after finishing video
     double avg_time = this->perf_checker.get_avg_frame_time();

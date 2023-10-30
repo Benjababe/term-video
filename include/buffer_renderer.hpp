@@ -43,9 +43,14 @@ namespace TermVideo
 
     private:
         void frame_to_ascii(uchar *, const int, const int, const int);
-        void process_video(cv::VideoCapture);
         void write_to_buffer(const int, const int, uchar, WORD);
         void check_resize();
+
+#if defined(__USE_OPENCV)
+        void process_video(cv::VideoCapture);
+#elif defined(__USE_FFMPEG)
+        void process_video();
+#endif
 
 #if defined(_WIN32)
         CHAR_INFO *buffer;

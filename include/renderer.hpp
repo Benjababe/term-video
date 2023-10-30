@@ -18,9 +18,12 @@
 #include "performance_checker.hpp"
 #include "terminal.hpp"
 
+#ifdef __USE_OPENCV
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/utils/logger.hpp>
+#endif
 
+#ifdef __USE_FFMPEG
 extern "C"
 {
 #include <libswscale/swscale.h>
@@ -31,6 +34,7 @@ extern "C"
 #include <libavutil/rational.h>
 #include <libavformat/avformat.h>
 }
+#endif
 
 typedef unsigned long ULONG;
 typedef unsigned char uchar;
@@ -39,60 +43,67 @@ typedef unsigned char uchar;
 
 namespace TermVideo
 {
-    struct VideoInfo
-    {
-        const AVCodec *decoder;
-        AVStream *stream;
-        AVFormatContext *format_ctx;
-        AVCodecContext *codec_ctx;
-        SwsContext *sws_ctx;
+        struct VideoInfo
+        {
+                const AVCodec *decoder;
+                AVStream *stream;
+                AVFormatContext *format_ctx;
+                AVCodecContext *codec_ctx;
+                SwsContext *sws_ctx;
 
-        int64 frametime_ns;
-        int colour_channels;
-        int new_width;
-        int new_height;
-    };
+                int64 frametime_ns;
+                int colour_channels;
+                int new_width;
+                int new_height;
+        };
 
-    class Renderer
-    {
-    public:
-        Renderer();
-        Renderer(Options);
-        virtual void init_renderer();
-        virtual void start_renderer();
-        std::string open_file();
-        std::string get_decoder();
+        class Renderer
+        {
+        public:
+                Renderer();
+                Renderer(Options);
+                virtual void init_renderer();
+                virtual void start_renderer();
+                std::string open_file();
+                std::string get_decoder();
 
-        Optimiser optimiser;
-        PerformanceChecker perf_checker;
+                Optimiser optimiser;
+                PerformanceChecker perf_checker;
 
-    protected:
-        char pixel_to_ascii(uchar, uchar, uchar);
-        void frame_downscale(cv::Mat &);
-        void frame_downscale(AVFrame *);
-        void wait_for_frame();
+        protected:
+                char pixel_to_ascii(uchar, uchar, uchar);
+                void wait_for_frame();
 
-        VideoInfo video_info;
-        int frames_to_skip;
-        int width, height;
-        int padding_x, padding_y;
-        bool print_colour;
-        bool force_aspect;
-        bool ready;
-        bool term_resized;
-        bool force_avg_luminance;
-        uchar col_threshold;
-        uchar prev_r, prev_g, prev_b;
-        std::string filename, char_set;
-        std::chrono::steady_clock::time_point next_frame;
+#if defined(__USE_OPENCV)
+                void frame_downscale(cv::Mat &);
+#elif defined(__USE_FFMPEG)
+                void frame_downscale(AVFrame *);
+#endif
 
-    private:
-        void frame_to_ascii(std::string &, uchar *, const int, const int, const int);
-        void print(std::string ascii_frame);
-        void process_video(cv::VideoCapture);
+                VideoInfo video_info;
+                int frames_to_skip;
+                int width, height;
+                int padding_x, padding_y;
+                bool print_colour;
+                bool force_aspect;
+                bool ready;
+                bool term_resized;
+                bool force_avg_luminance;
+                uchar col_threshold;
+                uchar prev_r, prev_g, prev_b;
+                std::string filename, char_set;
+                std::chrono::steady_clock::time_point next_frame;
 
-        void process_video();
-    };
+        private:
+                void frame_to_ascii(std::string &, uchar *, const int, const int, const int);
+                void print(std::string ascii_frame);
+
+#if defined(__USE_OPENCV)
+                void process_video(cv::VideoCapture);
+#elif defined(__USE_FFMPEG)
+                void process_video();
+#endif
+        };
 }
 
 #endif

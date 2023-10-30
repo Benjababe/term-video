@@ -117,6 +117,7 @@ void TermVideo::Renderer::frame_to_ascii(
     this->perf_checker.end_frame_time();
 }
 
+#if defined(__USE_OPENCV)
 /**
  * @brief Downscales a frame to better fix ASCII characters & size. Uses opencv4.
  * @param frame Frame to be downscaled.
@@ -151,7 +152,7 @@ void TermVideo::Renderer::frame_downscale(cv::Mat &frame)
         frame = resized_frame;
     }
 }
-
+#elif defined(__USE_FFMPEG)
 /**
  * @brief Downscales a frame to better fix ASCII characters & size. Uses ffmpeg.
  * @param frame Frame to be downscaled
@@ -211,6 +212,7 @@ void TermVideo::Renderer::frame_downscale(AVFrame *frame)
         *frame = *resized_frame;
     }
 }
+#endif
 
 void TermVideo::Renderer::print(std::string ascii_frame)
 {
@@ -230,6 +232,7 @@ void TermVideo::Renderer::wait_for_frame()
     std::this_thread::sleep_until(this->next_frame);
 }
 
+#if defined(__USE_OPENCV)
 /**
  * @brief Converts a video into ASCII frames. Uses opencv4
  * @param cap Video file to be converted
@@ -267,7 +270,7 @@ void TermVideo::Renderer::process_video(cv::VideoCapture cap)
         this->wait_for_frame();
     }
 }
-
+#elif defined(__USE_FFMPEG)
 /**
  * @brief Converts a video into ASCII frames. Uses FFmpeg
  */
@@ -329,6 +332,7 @@ void TermVideo::Renderer::process_video()
         this->wait_for_frame();
     }
 }
+#endif
 
 /**
  * @brief Initialises values for the renderer
@@ -339,7 +343,10 @@ void TermVideo::Renderer::init_renderer()
     hide_terminal_cursor();
     get_terminal_size(this->width, this->height, this->term_resized);
     init_terminal_col(this->print_colour);
+
+#ifdef __USE_OPENCV
     cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
+#endif
 
     this->ready = true;
 }
@@ -402,12 +409,12 @@ void TermVideo::Renderer::start_renderer()
     if (!this->ready)
         return;
 
-#ifdef __USE_FFMPEG
-    this->process_video();
-#elif defined(__USE_OPENCV)
+#ifdef __USE_OPENCV
     cv::VideoCapture cap(this->filename);
     this->process_video(cap);
     cap.release();
+#elif defined(__USE_FFMPEG)
+    this->process_video();
 #endif
 
     // prints performance after finishing video
