@@ -218,6 +218,12 @@ void TermVideo::Renderer::frame_downscale_ffmpeg(AVFrame *frame)
 
 void TermVideo::Renderer::print(std::string ascii_frame)
 {
+#if defined(_WIN32)
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), {0, 0});
+#elif defined(__linux__)
+    move(0, 0);
+#endif
+
     // https://stackoverflow.com/questions/51149880/fprintf-fputs-vs-cout-performance-for-large-strings
     if (ascii_frame.length() <= 30000)
         fputs(ascii_frame.c_str(), stdout);

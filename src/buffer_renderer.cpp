@@ -250,7 +250,10 @@ void TermVideo::BufferRenderer::init_renderer()
     hide_terminal_cursor();
     get_terminal_size(this->width, this->height, this->term_resized);
     init_terminal_col(this->print_colour);
+
+#ifdef __USE_OPENCV
     cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
+#endif
 
 #if defined(_WIN32)
     short width_s = (short)this->width - 1,
