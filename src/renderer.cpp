@@ -212,6 +212,15 @@ void TermVideo::Renderer::frame_downscale(AVFrame *frame)
     }
 }
 
+void TermVideo::Renderer::print(std::string ascii_frame)
+{
+    // https://stackoverflow.com/questions/51149880/fprintf-fputs-vs-cout-performance-for-large-strings
+    if (ascii_frame.length() <= 30000)
+        fputs(ascii_frame.c_str(), stdout);
+    else
+        fwrite(ascii_frame.c_str(), ascii_frame.length(), 1, stdout);
+}
+
 /**
  * @brief Waits for frametime sync before resuming program
  */
@@ -246,7 +255,9 @@ void TermVideo::Renderer::process_video(cv::VideoCapture cap)
         // convert pixels and store to ascii_frame
         std::string ascii_frame;
         this->frame_to_ascii(ascii_frame, frame.data, frame.cols, frame.rows, frame.channels());
-        std::cout << "\r" << ascii_frame;
+
+        // properly print output frame
+        this->print(ascii_frame);
 
         // refetch terminal size every interval
         if (frame_count % FETCH_TERMINAL_INTERVAL == 0)
@@ -304,7 +315,9 @@ void TermVideo::Renderer::process_video()
             frame->data[0],
             frame->width, frame->height,
             this->video_info.colour_channels);
-        std::cout << "\r" << ascii_frame;
+
+        // properly print output frame
+        this->print(ascii_frame);
 
         av_frame_unref(frame);
         av_packet_unref(&packet);

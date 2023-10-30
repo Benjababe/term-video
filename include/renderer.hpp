@@ -88,6 +88,7 @@ namespace TermVideo
 
     private:
         void frame_to_ascii(std::string &, uchar *, const int, const int, const int);
+        void print(std::string ascii_frame);
         void process_video(cv::VideoCapture);
 
         void process_video();
