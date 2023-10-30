@@ -231,7 +231,7 @@ void TermVideo::Renderer::process_video(cv::VideoCapture cap)
     {
         cv::Mat frame;
 
-        for (int i = 0; i < (this->frames_to_skip + 1); i++)
+        for (int i = 0; i <= this->frames_to_skip; i++)
             cap >> frame;
 
         int frame_count = (int)cap.get(1);
@@ -266,8 +266,9 @@ void TermVideo::Renderer::process_video()
     AVPacket packet;
 
     int frame_count = 0;
+    int skip_count = 0;
 
-    while (av_read_frame(this->video_info.format_ctx, &packet) >= 0)
+    while (!av_read_frame(this->video_info.format_ctx, &packet))
     {
         // skips if stream isn't the main video
         if (packet.stream_index != this->video_info.stream->index)
@@ -277,6 +278,11 @@ void TermVideo::Renderer::process_video()
             continue;
         if (avcodec_receive_frame(this->video_info.codec_ctx, frame))
             continue;
+
+        // skip frames by user request
+        if (skip_count++ < this->frames_to_skip)
+            continue;
+        skip_count = 0;
 
         // reduces video resolution to fit the terminal
         this->frame_downscale(frame);
@@ -321,8 +327,6 @@ void TermVideo::Renderer::init_renderer()
  */
 std::string TermVideo::Renderer::get_decoder()
 {
-    int ret;
-
     // Sets frametime to know how long to delay per frame
     double fps = av_q2d(this->video_info.stream->r_frame_rate);
     this->video_info.frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
@@ -330,7 +334,7 @@ std::string TermVideo::Renderer::get_decoder()
     this->video_info.codec_ctx = avcodec_alloc_context3(this->video_info.decoder);
     avcodec_parameters_to_context(this->video_info.codec_ctx, this->video_info.stream->codecpar);
 
-    ret = avcodec_open2(this->video_info.codec_ctx, this->video_info.decoder, nullptr);
+    int ret = avcodec_open2(this->video_info.codec_ctx, this->video_info.decoder, nullptr);
     if (ret < 0)
         return "Decoder could not be opened";
 
