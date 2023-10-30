@@ -1,5 +1,3 @@
-#define __USE_FFMPEG
-
 #ifndef RENDERER_H
 #define RENDERER_H
 

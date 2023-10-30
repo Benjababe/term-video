@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.6)
 
+# set(MEDIA_HANDLER opencv)
+# add_compile_definitions(__USE_OPENCV)
 set(MEDIA_HANDLER ffmpeg)
+add_compile_definitions(__USE_FFMPEG)
 
 set(PROJECT_NAME term_video_${MEDIA_HANDLER})
 project(${PROJECT_NAME} CXX)
@@ -26,19 +29,17 @@ file(GLOB ALL_SRCS
 
 add_executable(${PROJECT_NAME} ${ALL_SRCS})
 
-if (MEDIA_HANDLER MATCHES ffmpeg)
-    pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET
-        ao
-        libavformat
-        libavcodec
-        libavutil
-        libswresample
-        libswscale)
+pkg_check_modules(LIBAV REQUIRED IMPORTED_TARGET
+    ao
+    libavformat
+    libavcodec
+    libavutil
+    libswresample
+    libswscale)
 
-    target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::LIBAV)
-endif()
+target_link_libraries(${PROJECT_NAME} PRIVATE PkgConfig::LIBAV)
 
-if (MEDIA_HANDLER MATCHES opencv)
+if(MEDIA_HANDLER MATCHES opencv)
     pkg_check_modules(OPENCV IMPORTED_TARGET
         opencv4)
 
