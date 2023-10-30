@@ -17,6 +17,7 @@ namespace TermVideo
         bool force_aspect = false;
         bool use_buffer = false;
         bool force_avg_lumi = false;
+        bool use_audio = true;
     };
 
     int parse_arguments(Options &, int, char **);

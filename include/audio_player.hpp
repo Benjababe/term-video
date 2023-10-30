@@ -32,6 +32,7 @@ namespace TermVideo
     class AudioPlayer
     {
     private:
+        bool use_audio;
         AudioInfo audio_info;
         ao_sample_format ao_s_format;
         ao_device *a_device;

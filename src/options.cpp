@@ -17,18 +17,34 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
                 opts.filename = std::string(argv[++i]);
             else
             {
-                std::cerr << "Option \"" << arg << "\" requires one argument";
+                std::cerr << "Option \"" << arg << "\" requires one argument" << std::endl;
                 return -1;
             }
         }
 
+        else if (arg == "-na" || arg == "--no-audio")
+        {
+            if (opts.audio_language.length() > 0)
+            {
+                std::cerr << "Setting \"" << arg << "\" when audio language is provided" << std::endl;
+                return -1;
+            }
+
+            opts.use_audio = false;
+        }
+
         else if (arg == "-al" || arg == "--audio-language")
         {
-            if (i + 1 < argc)
+            if (!opts.use_audio)
+            {
+                std::cerr << "Setting \"" << arg << "\" when audio is disabled" << std::endl;
+                return -1;
+            }
+            else if (i + 1 < argc)
                 opts.audio_language = std::string(argv[++i]);
             else
             {
-                std::cerr << "Option \"" << arg << "\" requires one argument";
+                std::cerr << "Option \"" << arg << "\" requires one argument" << std::endl;
                 return -1;
             }
         }
@@ -39,7 +55,7 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
                 opts.col_threshold = std::stoi(argv[++i]);
             else
             {
-                std::cerr << "Option \"" << arg << "\" requires one argument";
+                std::cerr << "Option \"" << arg << "\" requires one argument" << std::endl;
                 return -1;
             }
         }
@@ -50,7 +66,7 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
                 opts.frames_to_skip = std::stoi(argv[++i]);
             else
             {
-                std::cerr << "Option \"" << arg << "\" requires one argument";
+                std::cerr << "Option \"" << arg << "\" requires one argument" << std::endl;
                 return -1;
             }
         }

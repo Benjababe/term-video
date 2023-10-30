@@ -35,6 +35,7 @@ int main(int argc, char **argv)
     if (err_code < 0)
     {
         std::cerr << "Error with parsing arguments" << std::endl;
+        std::cin.ignore();
         return 0;
     }
 
@@ -43,6 +44,7 @@ int main(int argc, char **argv)
     if (res.length() > 0)
     {
         std::cerr << res << std::endl;
+        std::cin.ignore();
         return 0;
     }
 
@@ -51,6 +53,7 @@ int main(int argc, char **argv)
     if (res.length() > 0)
     {
         std::cerr << res << std::endl;
+        std::cin.ignore();
         return 0;
     }
 
@@ -60,5 +63,6 @@ int main(int argc, char **argv)
     thread_audio.join();
     thread_video.join();
 
+    std::cin.ignore();
     return 0;
 }

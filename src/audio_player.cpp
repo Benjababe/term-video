@@ -50,6 +50,10 @@ namespace TermVideo
 
     std::string AudioPlayer::init_player(Options opts)
     {
+        this->use_audio = opts.use_audio;
+        if (!this->use_audio)
+            return "";
+
         int ret = avformat_open_input(
             &this->audio_info.format_ctx,
             opts.filename.c_str(),
@@ -135,6 +139,9 @@ namespace TermVideo
 
     void AudioPlayer::play_file()
     {
+        if (!this->use_audio)
+            return;
+
         AVPacket *packet = av_packet_alloc();
         AVFrame *frame = av_frame_alloc();
 

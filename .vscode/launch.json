@@ -40,10 +40,11 @@
                 "8",
                 "--skip-frames",
                 "1",
-                "--audio-language",
+                // "--no-audio",
+                // "--audio-language",
                 "jpn",
                 "--file",
-                "./data/bocchi.mkv"
+                "./data/umi.mkv"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
