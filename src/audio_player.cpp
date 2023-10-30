@@ -1,21 +1,21 @@
 #include "audio_player.hpp"
 #include "media.hpp"
 
-#define MINIAUDIO_IMPLEMENTATION
-#include "miniaudio.h"
-
 namespace TermVideo
 {
-    void data_callback(ma_device *p_device, void *p_output, const void *p_input, ma_uint32 frame_count)
-    {
-        AVAudioFifo *fifo = (AVAudioFifo *)p_device->pUserData;
-        av_audio_fifo_read(fifo, &p_output, frame_count);
-    }
-
     AudioPlayer::AudioPlayer()
     {
         this->audio_info.format_ctx = nullptr;
-        this->audio_info.buffer = NULL;
+    }
+
+    AudioPlayer::~AudioPlayer()
+    {
+        avformat_free_context(this->audio_info.format_ctx);
+        avcodec_free_context(&this->audio_info.codec_ctx);
+        swr_free(&this->audio_info.swr_ctx);
+
+        ao_close(this->a_device);
+        ao_shutdown();
     }
 
     std::string AudioPlayer::get_audio_stream(std::string audio_language)
@@ -80,87 +80,52 @@ namespace TermVideo
         std::string err;
 
         const AVCodec *decoder;
-        AVCodecContext *codec_ctx;
-        SwrContext *swr_ctx = swr_alloc();
-        AVPacket *packet = av_packet_alloc();
-        AVFrame *frame = av_frame_alloc();
+        this->audio_info.swr_ctx = swr_alloc();
 
         err = get_audio_stream(opts.audio_language);
         if (err.length() > 0)
             return err;
 
-        err = this->get_decoder(&decoder, &codec_ctx, &swr_ctx);
+        err = this->get_decoder(&decoder);
         if (err.length() > 0)
             return err;
 
-        this->audio_info.buffer = av_audio_fifo_alloc(
-            AV_SAMPLE_FMT_S32,
-            this->audio_info.stream->codecpar->ch_layout.nb_channels,
-            1);
-
-        while (!av_read_frame(this->audio_info.format_ctx, packet))
-        {
-            err = this->write_packet_to_buffer(codec_ctx, swr_ctx, packet, frame);
-            if (err.length() > 0)
-                return err;
-        }
-
-        av_packet_free(&packet);
-        av_frame_free(&frame);
-        swr_free(&swr_ctx);
-        avcodec_free_context(&codec_ctx);
+        this->init_output_device();
 
         return "";
     }
 
-    std::string AudioPlayer::write_packet_to_buffer(AVCodecContext *codec_ctx, SwrContext *swr_ctx, AVPacket *packet, AVFrame *frame)
+    void AudioPlayer::init_output_device()
     {
-        // If not reading audio stream, skip
-        if (packet->stream_index != this->audio_info.stream->index)
-            return "";
+        ao_initialize();
+        int driver_id = ao_default_driver_id();
 
-        int ret = avcodec_send_packet(codec_ctx, packet);
-        if (ret < 0)
-        {
-            if (ret != AVERROR(EAGAIN))
-                return "Error with decoding packet";
-        }
-        while (!avcodec_receive_frame(codec_ctx, frame))
-        {
-            // Resample frame
-            AVFrame *resampled_frame = av_frame_alloc();
-            resampled_frame->sample_rate = frame->sample_rate;
-            resampled_frame->ch_layout = frame->ch_layout;
-            resampled_frame->format = AV_SAMPLE_FMT_S32;
+        this->ao_s_format.bits = SAMPLE_BITS;
+        this->ao_s_format.byte_format = AO_FMT_NATIVE;
+        this->ao_s_format.matrix = nullptr;
+        this->ao_s_format.channels = this->audio_info.codec_ctx->ch_layout.nb_channels;
+        this->ao_s_format.rate = this->audio_info.codec_ctx->sample_rate;
 
-            ret = swr_convert_frame(swr_ctx, resampled_frame, frame);
-            av_frame_unref(frame);
-            av_audio_fifo_write(this->audio_info.buffer,
-                                (void **)resampled_frame->data,
-                                resampled_frame->nb_samples);
-            av_frame_unref(resampled_frame);
-        }
-
-        return "";
+        this->a_device = ao_open_live(driver_id, &this->ao_s_format, NULL);
     }
 
-    std::string AudioPlayer::get_decoder(const AVCodec **decoder, AVCodecContext **codec_ctx, SwrContext **swr_ctx)
+    std::string AudioPlayer::get_decoder(const AVCodec **decoder)
     {
         *decoder = avcodec_find_decoder(this->audio_info.stream->codecpar->codec_id);
         if (!decoder)
             return "No appropriate decoder found for file!";
 
-        *codec_ctx = avcodec_alloc_context3(*decoder);
-        avcodec_parameters_to_context(*codec_ctx, this->audio_info.stream->codecpar);
+        this->audio_info.codec_ctx = avcodec_alloc_context3(*decoder);
+        avcodec_parameters_to_context(this->audio_info.codec_ctx, this->audio_info.stream->codecpar);
 
-        int ret = avcodec_open2(*codec_ctx, *decoder, nullptr);
+        int ret = avcodec_open2(this->audio_info.codec_ctx, *decoder, nullptr);
         if (ret < 0)
             return "Decoder could not be opened\n";
 
         ret = swr_alloc_set_opts2(
-            swr_ctx,
+            &this->audio_info.swr_ctx,
             &this->audio_info.stream->codecpar->ch_layout,
-            AV_SAMPLE_FMT_S32,
+            SAMPLE_FORMAT,
             this->audio_info.stream->codecpar->sample_rate,
             &this->audio_info.stream->codecpar->ch_layout,
             (AVSampleFormat)this->audio_info.stream->codecpar->format,
@@ -175,32 +140,45 @@ namespace TermVideo
 
     void AudioPlayer::play_file()
     {
-        ma_device_config device_config;
-        ma_device device;
+        AVPacket *packet = av_packet_alloc();
+        AVFrame *frame = av_frame_alloc();
 
-        device_config = ma_device_config_init(ma_device_type_playback);
-        device_config.playback.format = ma_format_s32;
-        device_config.playback.channels = this->audio_info.stream->codecpar->ch_layout.nb_channels;
-        device_config.sampleRate = this->audio_info.stream->codecpar->sample_rate;
-        device_config.dataCallback = data_callback;
-        device_config.pUserData = this->audio_info.buffer;
-
-        avformat_close_input(&this->audio_info.format_ctx);
-
-        if (ma_device_init(NULL, &device_config, &device) != MA_SUCCESS)
-            return;
-
-        if (ma_device_start(&device) != MA_SUCCESS)
+        while (!av_read_frame(this->audio_info.format_ctx, packet))
         {
-            ma_device_uninit(&device);
-            return;
-        }
+            if (packet->stream_index != this->audio_info.stream->index)
+                continue;
 
-        while (av_audio_fifo_size(this->audio_info.buffer))
-        {
-        }
+            int ret = avcodec_send_packet(this->audio_info.codec_ctx, packet);
+            if (ret < 0)
+            {
+                if (ret != AVERROR(EAGAIN))
+                    continue;
+            }
+            while (!avcodec_receive_frame(this->audio_info.codec_ctx, frame))
+            {
+                // Resample frame
+                AVFrame *resampled_frame = av_frame_alloc();
+                resampled_frame->sample_rate = frame->sample_rate;
+                resampled_frame->ch_layout = frame->ch_layout;
+                resampled_frame->format = SAMPLE_FORMAT;
 
-        av_audio_fifo_free(this->audio_info.buffer);
-        ma_device_uninit(&device);
+                ret = swr_convert_frame(this->audio_info.swr_ctx, resampled_frame, frame);
+
+                int buf_size = av_samples_get_buffer_size(nullptr,
+                                                          this->audio_info.codec_ctx->ch_layout.nb_channels,
+                                                          resampled_frame->nb_samples,
+                                                          this->audio_info.codec_ctx->sample_fmt,
+                                                          1);
+
+                ao_play(this->a_device,
+                        (char *)resampled_frame->extended_data[0],
+                        buf_size);
+
+                av_frame_unref(frame);
+                av_frame_unref(resampled_frame);
+            }
+
+            av_packet_unref(packet);
+        }
     }
 }
