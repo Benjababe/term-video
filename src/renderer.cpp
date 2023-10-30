@@ -85,7 +85,7 @@ void TermVideo::Renderer::frame_to_ascii(
 
     // add top padding to fit aspect ratio
     for (int i = 0; i < this->padding_y; i++)
-        ascii_output += std::string(width, ' ');
+        ascii_output += std::string(this->width, ' ');
 
     for (int row = 0; row < height; row++)
     {
@@ -124,6 +124,10 @@ void TermVideo::Renderer::frame_to_ascii(
             ascii_output += std::string(rem_len, ' ');
         }
     }
+
+    // add bottom padding to fit aspect ratio
+    for (int i = 0; i < (this->height - this->padding_y - height); i++)
+        ascii_output += std::string(this->width, ' ');
 
     this->perf_checker.end_frame_time();
 }
@@ -175,30 +179,39 @@ void TermVideo::Renderer::frame_downscale_ffmpeg(AVFrame *frame)
     // create scaler if doesn't exist or terminal has been resized
     if (this->video_info.sws_ctx == nullptr || this->term_resized)
     {
+        this->padding_x = 0;
+        this->padding_y = 0;
+
         int new_width = frame->width,
             new_height = frame->height;
 
-        // if using video's aspect ratio and video is taller than terminal
-        // set video height to terminal height and scale width accordingly
-        if (this->force_aspect && frame->height > this->height)
-        {
-            new_height = this->height;
-            new_width = (int)std::min(
-                (double)frame->width * ((double)this->height / frame->height) * 2,
-                (double)this->width);
-            this->padding_x = this->width - new_width;
-            this->padding_x = (this->padding_x / 2) + (this->padding_x & 1);
-        }
-        // if using video's aspect ratio and video is wider than terminal
-        // set video width to terminal height and scale height accordingly
-        else if (this->force_aspect && frame->width > this->width)
+        double terminal_aspect = (double)this->width / ((double)this->height * 2);
+        double video_aspect = (double)frame->width / (double)frame->height;
+
+        // NOTE: For the aspect ratio resizing, video_aspect is multiplied
+        // by 2 as the pixel sizes for a terminal character is 2:1 in height:width
+
+        // if forcing video's aspect ratio and its ratio is greater than terminal's
+        // i.e. it's "wider" than the terminal, use y padding
+        if (this->force_aspect && video_aspect > terminal_aspect)
         {
             new_width = this->width;
             new_height = (int)std::min(
-                (double)frame->height * ((double)this->width / frame->width) * 2,
-                (double)this->height);
+                (double)this->height,
+                ((double)this->width / (video_aspect * 2)));
             this->padding_y = this->height - new_height;
-            this->padding_y = (this->padding_y / 2) + (this->padding_y & 1);
+            this->padding_y = (this->padding_y / 2);
+        }
+        // if forcing video's aspect ratio and its ratio is less than terminal's
+        // i.e. it's "taller" than the terminal, use x padding
+        else if (this->force_aspect && video_aspect < terminal_aspect)
+        {
+            new_height = this->height;
+            new_width = (int)std::min(
+                (double)this->width,
+                (double)this->height * video_aspect * 2);
+            this->padding_x = this->width - new_width;
+            this->padding_x = (this->padding_x / 2);
         }
         // default case, fit to terminal size
         else
