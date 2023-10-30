@@ -35,6 +35,8 @@ extern "C"
 typedef unsigned long ULONG;
 typedef unsigned char uchar;
 
+#define FETCH_TERMINAL_INTERVAL 1
+
 namespace TermVideo
 {
     struct VideoInfo

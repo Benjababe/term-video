@@ -157,8 +157,8 @@ void TermVideo::BufferRenderer::process_video(cv::VideoCapture cap)
         // converts frame into ascii output & prints it out
         this->frame_to_ascii(frame.data, frame.cols, frame.rows, frame.channels());
 
-        // refetch terminal size every 4 frames
-        if (frame_count % 4 == 0)
+        // refetch terminal size every interval
+        if (frame_count % FETCH_TERMINAL_INTERVAL == 0)
             this->check_resize();
 
         // wait for next interval before processing

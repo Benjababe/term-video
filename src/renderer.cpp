@@ -248,8 +248,8 @@ void TermVideo::Renderer::process_video(cv::VideoCapture cap)
         this->frame_to_ascii(ascii_frame, frame.data, frame.cols, frame.rows, frame.channels());
         std::cout << "\r" << ascii_frame;
 
-        // refetch terminal size every 4 frames
-        if (frame_count % 4 == 0)
+        // refetch terminal size every interval
+        if (frame_count % FETCH_TERMINAL_INTERVAL == 0)
             get_terminal_size(this->width, this->height, this->term_resized);
 
         // wait for next interval before processing
@@ -293,8 +293,8 @@ void TermVideo::Renderer::process_video()
         av_frame_unref(frame);
         av_packet_unref(&packet);
 
-        // refetch terminal size every 4 frames
-        if (++frame_count % 4 == 0)
+        // refetch terminal size every interval
+        if (++frame_count % FETCH_TERMINAL_INTERVAL == 0)
             get_terminal_size(this->width, this->height, this->term_resized);
 
         this->wait_for_frame();
