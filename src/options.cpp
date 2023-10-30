@@ -33,7 +33,7 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
             }
         }
 
-        else if (arg == "-t" || arg == "--threshold")
+        else if (arg == "-ct" || arg == "--color-threshold" || arg == "--colour-threshold")
         {
             if (i + 1 < argc)
                 opts.col_threshold = std::stoi(argv[++i]);
@@ -55,13 +55,13 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
             }
         }
 
-        else if (arg == "-c" || arg == "--colour")
+        else if (arg == "-c" || arg == "color" || arg == "--colour")
         {
             opts.print_colour = true;
             opts.char_set = ascii_colour_chars;
         }
 
-        else if (arg == "-a" || arg == "--force-aspect")
+        else if (arg == "-fa" || arg == "--force-aspect")
         {
             opts.force_aspect = true;
         }
