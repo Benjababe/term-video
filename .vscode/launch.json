@@ -42,7 +42,7 @@
                 "--audio-language",
                 "jpn",
                 "--file",
-                "./data/bocchi.mkv"
+                "./data/hidaneko.mp4"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
