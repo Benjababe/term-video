@@ -146,14 +146,18 @@ namespace TermVideo
         while (!av_read_frame(this->audio_info.format_ctx, packet))
         {
             if (packet->stream_index != this->audio_info.stream->index)
+            {
+                av_packet_unref(packet);
                 continue;
+            }
 
             int ret = avcodec_send_packet(this->audio_info.codec_ctx, packet);
-            if (ret < 0)
+            if (ret < 0 && ret != AVERROR(EAGAIN))
             {
-                if (ret != AVERROR(EAGAIN))
-                    continue;
+                av_packet_unref(packet);
+                continue;
             }
+
             while (!avcodec_receive_frame(this->audio_info.codec_ctx, frame))
             {
                 // Resample frame
@@ -174,11 +178,13 @@ namespace TermVideo
                         (char *)resampled_frame->extended_data[0],
                         buf_size);
 
-                av_frame_unref(frame);
                 av_frame_unref(resampled_frame);
+                av_frame_unref(frame);
             }
 
             av_packet_unref(packet);
         }
+
+        av_packet_free(&packet);
     }
 }
