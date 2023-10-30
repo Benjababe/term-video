@@ -222,6 +222,7 @@ void TermVideo::Renderer::print(std::string ascii_frame)
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), {0, 0});
 #elif defined(__linux__)
     move(0, 0);
+    refresh();
 #endif
 
     // https://stackoverflow.com/questions/51149880/fprintf-fputs-vs-cout-performance-for-large-strings
@@ -357,6 +358,10 @@ void TermVideo::Renderer::init_renderer()
 
 #ifdef __USE_OPENCV
     cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
+#endif
+
+#if defined(__linux__)
+    initscr();
 #endif
 
     this->ready = true;
