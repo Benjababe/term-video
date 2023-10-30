@@ -19,7 +19,9 @@ TermVideo::Renderer::Renderer() {}
  */
 TermVideo::Renderer::Renderer(Options opts)
 {
+#ifdef __USE_FFMPEG
     this->video_info.sws_ctx = nullptr;
+#endif
 
     this->frames_to_skip = opts.frames_to_skip;
     this->print_colour = opts.print_colour;
@@ -122,7 +124,7 @@ void TermVideo::Renderer::frame_to_ascii(
  * @brief Downscales a frame to better fix ASCII characters & size. Uses opencv4.
  * @param frame Frame to be downscaled.
  */
-void TermVideo::Renderer::frame_downscale(cv::Mat &frame)
+void TermVideo::Renderer::frame_downscale_opencv(cv::Mat &frame)
 {
     const int max_width = this->width,
               max_height = this->height;
@@ -157,7 +159,7 @@ void TermVideo::Renderer::frame_downscale(cv::Mat &frame)
  * @brief Downscales a frame to better fix ASCII characters & size. Uses ffmpeg.
  * @param frame Frame to be downscaled
  */
-void TermVideo::Renderer::frame_downscale(AVFrame *frame)
+void TermVideo::Renderer::frame_downscale_ffmpeg(AVFrame *frame)
 {
     AVPixelFormat output_format = AV_PIX_FMT_BGR24;
 
@@ -237,8 +239,11 @@ void TermVideo::Renderer::wait_for_frame()
  * @brief Converts a video into ASCII frames. Uses opencv4
  * @param cap Video file to be converted
  */
-void TermVideo::Renderer::process_video(cv::VideoCapture cap)
+void TermVideo::Renderer::process_video_opencv(cv::VideoCapture cap)
 {
+    double fps = cap.get(cv::CAP_PROP_FPS);
+    this->video_info.frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
+
     while (1)
     {
         cv::Mat frame;
@@ -253,7 +258,7 @@ void TermVideo::Renderer::process_video(cv::VideoCapture cap)
             break;
 
         // reduces video resolution to fit the terminal
-        this->frame_downscale(frame);
+        this->frame_downscale_opencv(frame);
 
         // convert pixels and store to ascii_frame
         std::string ascii_frame;
@@ -274,7 +279,7 @@ void TermVideo::Renderer::process_video(cv::VideoCapture cap)
 /**
  * @brief Converts a video into ASCII frames. Uses FFmpeg
  */
-void TermVideo::Renderer::process_video()
+void TermVideo::Renderer::process_video_ffmpeg()
 {
     AVFrame *frame = av_frame_alloc();
     AVPacket packet;
@@ -309,7 +314,7 @@ void TermVideo::Renderer::process_video()
         skip_count = 0;
 
         // reduces video resolution to fit the terminal
-        this->frame_downscale(frame);
+        this->frame_downscale_ffmpeg(frame);
 
         // convert pixels and store to ascii_frame
         std::string ascii_frame;
@@ -351,6 +356,7 @@ void TermVideo::Renderer::init_renderer()
     this->ready = true;
 }
 
+#ifdef __USE_FFMPEG
 /**
  * @brief Retrieves FFmpeg video decoder
  * @return std::string Error string
@@ -399,6 +405,7 @@ std::string TermVideo::Renderer::open_file()
     this->video_info.stream = this->video_info.format_ctx->streams[stream_index];
     return "";
 }
+#endif
 
 /**
  * @brief Starts the video conversion and display
@@ -411,10 +418,10 @@ void TermVideo::Renderer::start_renderer()
 
 #ifdef __USE_OPENCV
     cv::VideoCapture cap(this->filename);
-    this->process_video(cap);
+    this->process_video_opencv(cap);
     cap.release();
 #elif defined(__USE_FFMPEG)
-    this->process_video();
+    this->process_video_ffmpeg();
 #endif
 
     // prints performance after finishing video

@@ -137,7 +137,7 @@ void TermVideo::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int wi
  *
  * @param cap Video file to be converted
  */
-void TermVideo::BufferRenderer::process_video(cv::VideoCapture cap)
+void TermVideo::BufferRenderer::process_video_opencv(cv::VideoCapture cap)
 {
     while (1)
     {
@@ -153,7 +153,7 @@ void TermVideo::BufferRenderer::process_video(cv::VideoCapture cap)
             break;
 
         // reduces video resolution to fit the terminal
-        this->frame_downscale(frame);
+        this->frame_downscale_opencv(frame);
 
         // converts frame into ascii output & prints it out
         this->frame_to_ascii(frame.data, frame.cols, frame.rows, frame.channels());
@@ -170,7 +170,7 @@ void TermVideo::BufferRenderer::process_video(cv::VideoCapture cap)
 /**
  * @brief Converts a video into ASCII frames. Uses FFmpeg
  */
-void TermVideo::BufferRenderer::process_video()
+void TermVideo::BufferRenderer::process_video_ffmpeg()
 {
     AVFrame *frame = av_frame_alloc();
     AVPacket packet;
@@ -205,7 +205,7 @@ void TermVideo::BufferRenderer::process_video()
         skip_count = 0;
 
         // reduces video resolution to fit the terminal
-        this->frame_downscale(frame);
+        this->frame_downscale_ffmpeg(frame);
 
         // convert pixels and store to ascii_frame
         std::string ascii_frame;
@@ -296,10 +296,10 @@ void TermVideo::BufferRenderer::start_renderer()
 
 #if defined(__USE_OPENCV)
     cv::VideoCapture cap(this->filename);
-    this->process_video(cap);
+    this->process_video_opencv(cap);
     cap.release();
 #elif defined(__USE_FFMPEG)
-    this->process_video();
+    this->process_video_ffmpeg();
 #endif
 
     // prints performance after finishing video

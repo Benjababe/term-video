@@ -47,9 +47,9 @@ namespace TermVideo
         void check_resize();
 
 #if defined(__USE_OPENCV)
-        void process_video(cv::VideoCapture);
+        void process_video_opencv(cv::VideoCapture);
 #elif defined(__USE_FFMPEG)
-        void process_video();
+        void process_video_ffmpeg();
 #endif
 
 #if defined(_WIN32)

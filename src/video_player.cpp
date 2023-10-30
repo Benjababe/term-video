@@ -11,6 +11,7 @@ namespace TermVideo
 
         this->renderer->init_renderer();
 
+#ifdef __USE_FFMPEG
         std::string res = this->renderer->open_file();
         if (res.length() > 0)
             return res;
@@ -18,6 +19,7 @@ namespace TermVideo
         res = this->renderer->get_decoder();
         if (res.length() > 0)
             return res;
+#endif
 
         return "";
     }

@@ -45,11 +45,13 @@ namespace TermVideo
 {
         struct VideoInfo
         {
+#ifdef __USE_FFMPEG
                 const AVCodec *decoder;
                 AVStream *stream;
                 AVFormatContext *format_ctx;
                 AVCodecContext *codec_ctx;
                 SwsContext *sws_ctx;
+#endif
 
                 int64 frametime_ns;
                 int colour_channels;
@@ -75,9 +77,9 @@ namespace TermVideo
                 void wait_for_frame();
 
 #if defined(__USE_OPENCV)
-                void frame_downscale(cv::Mat &);
+                void frame_downscale_opencv(cv::Mat &);
 #elif defined(__USE_FFMPEG)
-                void frame_downscale(AVFrame *);
+                void frame_downscale_ffmpeg(AVFrame *);
 #endif
 
                 VideoInfo video_info;
@@ -99,9 +101,9 @@ namespace TermVideo
                 void print(std::string ascii_frame);
 
 #if defined(__USE_OPENCV)
-                void process_video(cv::VideoCapture);
+                void process_video_opencv(cv::VideoCapture);
 #elif defined(__USE_FFMPEG)
-                void process_video();
+                void process_video_ffmpeg();
 #endif
         };
 }
