@@ -334,27 +334,18 @@ void TermVideo::Renderer::process_video_ffmpeg()
     while (!av_read_frame(this->video_info.format_ctx, &packet))
     {
         // skips if stream isn't the main video
-        if (packet.stream_index != this->video_info.stream->index)
+        // or if there are errors with decoding the packet
+        // or just a general frame skip for optimisation
+        if (packet.stream_index != this->video_info.stream->index ||
+            avcodec_send_packet(this->video_info.codec_ctx, &packet) ||
+            avcodec_receive_frame(this->video_info.codec_ctx, frame) ||
+            skip_count++ < this->frames_to_skip)
         {
             av_packet_unref(&packet);
-            continue;
-        }
-        // skip if there are issues feeding packet into decoder
-        if (avcodec_send_packet(this->video_info.codec_ctx, &packet))
-        {
-            av_packet_unref(&packet);
-            continue;
-        }
-        // skip if there are issues decoding the packet
-        if (avcodec_receive_frame(this->video_info.codec_ctx, frame))
-        {
             av_frame_unref(frame);
             continue;
         }
 
-        // skip frames by user request
-        if (skip_count++ < this->frames_to_skip)
-            continue;
         skip_count = 0;
 
         // reduces video resolution to fit the terminal
