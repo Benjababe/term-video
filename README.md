@@ -7,7 +7,9 @@ A terminal application to play videos with an ASCII output.
 [Coloured buffer printing sample](https://www.youtube.com/watch?v=KUX2ZvlXs1w)
 
 ## Prerequisites
-Depending on the build for video processing, either opencv4 or FFmpeg + libao is required. Refer to the top of  `CMakeLists.txt` for the build type.
+Depending on the build for video processing, either opencv4 or FFmpeg 6 + libao 1.2.2 is required.
+
+Can't test with older versions as MSYS2 doesn't allow them out of box, especially FFmpeg with its many deprecated functions.
 
 ## Building The Project
 From project root, run
