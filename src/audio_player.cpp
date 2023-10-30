@@ -94,7 +94,7 @@ namespace TermVideo
             return err;
 
         this->audio_info.buffer = av_audio_fifo_alloc(
-            AV_SAMPLE_FMT_FLT,
+            AV_SAMPLE_FMT_S32,
             this->audio_info.stream->codecpar->ch_layout.nb_channels,
             1);
 
@@ -109,35 +109,6 @@ namespace TermVideo
         av_frame_free(&frame);
         swr_free(&swr_ctx);
         avcodec_free_context(&codec_ctx);
-
-        return "";
-    }
-
-    std::string AudioPlayer::get_decoder(const AVCodec **decoder, AVCodecContext **codec_ctx, SwrContext **swr_ctx)
-    {
-        *decoder = avcodec_find_decoder(this->audio_info.stream->codecpar->codec_id);
-        if (!decoder)
-            return "No appropriate decoder found for file!";
-
-        *codec_ctx = avcodec_alloc_context3(*decoder);
-        avcodec_parameters_to_context(*codec_ctx, this->audio_info.stream->codecpar);
-
-        int ret = avcodec_open2(*codec_ctx, *decoder, nullptr);
-        if (ret < 0)
-            return "Decoder could not be opened\n";
-
-        ret = swr_alloc_set_opts2(
-            swr_ctx,
-            &this->audio_info.stream->codecpar->ch_layout,
-            AV_SAMPLE_FMT_FLT,
-            this->audio_info.stream->codecpar->sample_rate,
-            &this->audio_info.stream->codecpar->ch_layout,
-            (AVSampleFormat)this->audio_info.stream->codecpar->format,
-            this->audio_info.stream->codecpar->sample_rate,
-            0,
-            nullptr);
-        if (ret < 0)
-            return "Error setting up resampler";
 
         return "";
     }
@@ -160,7 +131,7 @@ namespace TermVideo
             AVFrame *resampled_frame = av_frame_alloc();
             resampled_frame->sample_rate = frame->sample_rate;
             resampled_frame->ch_layout = frame->ch_layout;
-            resampled_frame->format = AV_SAMPLE_FMT_FLT;
+            resampled_frame->format = AV_SAMPLE_FMT_S32;
 
             ret = swr_convert_frame(swr_ctx, resampled_frame, frame);
             av_frame_unref(frame);
@@ -173,13 +144,42 @@ namespace TermVideo
         return "";
     }
 
+    std::string AudioPlayer::get_decoder(const AVCodec **decoder, AVCodecContext **codec_ctx, SwrContext **swr_ctx)
+    {
+        *decoder = avcodec_find_decoder(this->audio_info.stream->codecpar->codec_id);
+        if (!decoder)
+            return "No appropriate decoder found for file!";
+
+        *codec_ctx = avcodec_alloc_context3(*decoder);
+        avcodec_parameters_to_context(*codec_ctx, this->audio_info.stream->codecpar);
+
+        int ret = avcodec_open2(*codec_ctx, *decoder, nullptr);
+        if (ret < 0)
+            return "Decoder could not be opened\n";
+
+        ret = swr_alloc_set_opts2(
+            swr_ctx,
+            &this->audio_info.stream->codecpar->ch_layout,
+            AV_SAMPLE_FMT_S32,
+            this->audio_info.stream->codecpar->sample_rate,
+            &this->audio_info.stream->codecpar->ch_layout,
+            (AVSampleFormat)this->audio_info.stream->codecpar->format,
+            this->audio_info.stream->codecpar->sample_rate,
+            0,
+            nullptr);
+        if (ret < 0)
+            return "Error setting up resampler";
+
+        return "";
+    }
+
     void AudioPlayer::play_file()
     {
         ma_device_config device_config;
         ma_device device;
 
         device_config = ma_device_config_init(ma_device_type_playback);
-        device_config.playback.format = ma_format_f32;
+        device_config.playback.format = ma_format_s32;
         device_config.playback.channels = this->audio_info.stream->codecpar->ch_layout.nb_channels;
         device_config.sampleRate = this->audio_info.stream->codecpar->sample_rate;
         device_config.dataCallback = data_callback;
