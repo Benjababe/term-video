@@ -78,9 +78,6 @@ void TermVideo::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int wi
     for (int row = 0; row < height; row++)
     {
 #if defined(_WIN32)
-        for (int col = 0; col < this->padding_x; col++)
-            this->write_to_buffer(row, col, ' ', 0);
-
         for (int col = 0; col < width; col++)
         {
             ULONG index = channels * (row * width + col);
@@ -93,13 +90,13 @@ void TermVideo::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int wi
             if (this->print_colour)
             {
                 WORD attr = TermVideo::get_win32_col(pixel_r, pixel_g, pixel_b);
-                this->write_to_buffer(row, col + this->padding_x, ascii, attr);
+                this->write_to_buffer(row + this->padding_y, col + this->padding_x, ascii, attr);
             }
             else
             {
                 // forces text to be white
                 WORD white_attr = FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
-                this->write_to_buffer(row, col + this->padding_x, ascii, white_attr);
+                this->write_to_buffer(row + this->padding_y, col + this->padding_x, ascii, white_attr);
             }
         }
 #elif defined(__linux__)
