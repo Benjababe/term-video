@@ -39,11 +39,11 @@
                 "--threshold",
                 "8",
                 "--skip-frames",
-                "0",
+                "1",
                 "--audio-language",
                 "jpn",
                 "--file",
-                "./data/hidashort.mp4"
+                "./data/bocchi.mkv"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
