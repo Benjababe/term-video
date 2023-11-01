@@ -30,12 +30,15 @@ or make your life easier with the pre-existing `launch.json` and VSCode!
 | `-f`, `--file` | Relative path of the file from your current working directory. |
 | `-fa`, `--force-aspect` | Flag whether to use the source video's aspect ratio in playback. |
 | `-s`, `--skip-frames` | Number of frames to skip for every 1 frame. |
+| `-sk`, `--seek-step`| Time in milliseconds for each seek step. |
 | `-b`, `--buffer` | Write directly to the console buffer instead of conventional printing. |
 | `-c`, `--color`, `--colour` | To use colour output in playback. |
 | `-ct`, `--color-threshold`, `--colour-threshold` | In ANSI RGB printing, the absolute difference in colour before using a new ANSI code. Refer to `src/optimiser.cpp`. |
 | `-na`, `--no-audio` | Disable audio playback. |
 | `-al`, `--audio-language` | Choose a preferred audio language, expects 3 letter [ISO 639-2](https://en.wikipedia.org/wiki/List_of_ISO_639-2_codes) codes. |
 | `-alumi`, `--avg-lumi` | Use average of RGB values instead of relative luminance for luminance. Refer to `src/colour.cpp`. |
+
+Use `ctrl + <arrow left/right>` for video seeking.
 
 
 ## Optimisation Settings
