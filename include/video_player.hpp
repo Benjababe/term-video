@@ -27,6 +27,7 @@ namespace TermVideo
     public:
         std::string init_player(Options);
         void play_file();
+        void seek(bool);
     };
 }
 

@@ -5,6 +5,8 @@ namespace TermVideo
 {
     AudioPlayer::AudioPlayer()
     {
+        this->audio_info.time_pt_ms = 0;
+        this->audio_info.locked = false;
         this->audio_info.format_ctx = nullptr;
     }
 
@@ -50,6 +52,8 @@ namespace TermVideo
 
     std::string AudioPlayer::init_player(Options opts)
     {
+        this->audio_info.seek_step_ms = opts.seek_step_ms;
+
         this->use_audio = opts.use_audio;
         if (!this->use_audio)
             return "";
@@ -145,48 +149,79 @@ namespace TermVideo
         AVPacket *packet = av_packet_alloc();
         AVFrame *frame = av_frame_alloc();
 
-        while (!av_read_frame(this->audio_info.format_ctx, packet))
+        while (1)
         {
-            if (packet->stream_index != this->audio_info.stream->index)
+            while (this->audio_info.locked)
+                ;
+            this->audio_info.locked = true;
+
+            int ret = av_read_frame(this->audio_info.format_ctx, packet);
+            if (ret < 0)
+                break;
+
+            if (packet->stream_index != this->audio_info.stream->index ||
+                avcodec_send_packet(this->audio_info.codec_ctx, packet) ||
+                avcodec_receive_frame(this->audio_info.codec_ctx, frame))
             {
                 av_packet_unref(packet);
-                continue;
-            }
-
-            int ret = avcodec_send_packet(this->audio_info.codec_ctx, packet);
-            if (ret < 0 && ret != AVERROR(EAGAIN))
-            {
-                av_packet_unref(packet);
-                continue;
-            }
-
-            while (!avcodec_receive_frame(this->audio_info.codec_ctx, frame))
-            {
-                // Resample frame
-                AVFrame *resampled_frame = av_frame_alloc();
-                resampled_frame->sample_rate = frame->sample_rate;
-                resampled_frame->ch_layout = frame->ch_layout;
-                resampled_frame->format = SAMPLE_FORMAT;
-
-                ret = swr_convert_frame(this->audio_info.swr_ctx, resampled_frame, frame);
-
-                int buf_size = av_samples_get_buffer_size(nullptr,
-                                                          this->audio_info.codec_ctx->ch_layout.nb_channels,
-                                                          resampled_frame->nb_samples,
-                                                          this->audio_info.codec_ctx->sample_fmt,
-                                                          1);
-
-                ao_play(this->a_device,
-                        (char *)resampled_frame->extended_data[0],
-                        buf_size);
-
-                av_frame_unref(resampled_frame);
                 av_frame_unref(frame);
+                this->audio_info.locked = false;
+                continue;
             }
 
+            this->audio_info.locked = false;
+
+            // Resample frame
+            AVFrame *resampled_frame = av_frame_alloc();
+            resampled_frame->sample_rate = frame->sample_rate;
+            resampled_frame->ch_layout = frame->ch_layout;
+            resampled_frame->format = SAMPLE_FORMAT;
+
+            // keep track of current audio time
+            auto time_unit = av_q2d(this->audio_info.stream->time_base);
+            this->audio_info.time_pt_ms = frame->pts * time_unit * 1000;
+
+            ret = swr_convert_frame(this->audio_info.swr_ctx, resampled_frame, frame);
+
+            int buf_size = av_samples_get_buffer_size(nullptr,
+                                                      this->audio_info.codec_ctx->ch_layout.nb_channels,
+                                                      resampled_frame->nb_samples,
+                                                      this->audio_info.codec_ctx->sample_fmt,
+                                                      1);
+
+            ao_play(this->a_device,
+                    (char *)resampled_frame->extended_data[0],
+                    buf_size);
+
+            av_frame_unref(resampled_frame);
+            av_frame_unref(frame);
             av_packet_unref(packet);
         }
 
         av_packet_free(&packet);
+    }
+
+    void AudioPlayer::seek(bool seek_back)
+    {
+        while (this->audio_info.locked)
+            ;
+        this->audio_info.locked = true;
+
+        int64_t rel_time = ((seek_back) ? -1 : 1) * this->audio_info.seek_step_ms;
+        int64_t time_u = this->audio_info.stream->time_base.den;
+        int64_t timestamp = ((this->audio_info.time_pt_ms + rel_time) * time_u) / 1000;
+        int flags = AVSEEK_FLAG_ANY;
+
+        if (timestamp < 0)
+            timestamp = 0;
+
+        int ret = av_seek_frame(this->audio_info.format_ctx,
+                                this->audio_info.stream->index,
+                                timestamp,
+                                flags);
+        avcodec_flush_buffers(this->audio_info.codec_ctx);
+
+        this->audio_info.time_pt_ms += rel_time;
+        this->audio_info.locked = false;
     }
 }

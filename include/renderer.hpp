@@ -26,13 +26,13 @@
 #ifdef __USE_FFMPEG
 extern "C"
 {
-#include <libswscale/swscale.h>
 #include <libavcodec/avcodec.h>
 #include <libavutil/imgutils.h>
 #include <libavutil/parseutils.h>
 #include <libavutil/pixdesc.h>
 #include <libavutil/rational.h>
 #include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
 }
 #endif
 
@@ -49,13 +49,9 @@ typedef unsigned char uchar;
 
 namespace TermVideo
 {
-    struct VideoInfo
+    struct VideoInfo : MediaInfo
     {
-#ifdef __USE_FFMPEG
-        const AVCodec *decoder;
-        AVStream *stream;
-        AVFormatContext *format_ctx;
-        AVCodecContext *codec_ctx;
+#if defined(__USE_FFMPEG)
         SwsContext *sws_ctx;
 #endif
 
@@ -72,9 +68,11 @@ namespace TermVideo
         Renderer(Options);
         virtual void init_renderer();
         virtual void start_renderer();
+        void seek(bool);
         std::string open_file();
         std::string get_decoder();
 
+        VideoInfo video_info;
         Optimiser optimiser;
         PerformanceChecker perf_checker;
 
@@ -88,7 +86,6 @@ namespace TermVideo
         void frame_downscale_ffmpeg(AVFrame *);
 #endif
 
-        VideoInfo video_info;
         int frames_to_skip;
         int width, height;
         int padding_x, padding_y;

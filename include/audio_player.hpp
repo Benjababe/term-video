@@ -21,11 +21,8 @@ extern "C"
 
 namespace TermVideo
 {
-    struct AudioInfo
+    struct AudioInfo : MediaInfo
     {
-        AVFormatContext *format_ctx;
-        AVCodecContext *codec_ctx;
-        AVStream *stream;
         SwrContext *swr_ctx;
     };
 
@@ -47,6 +44,7 @@ namespace TermVideo
         ~AudioPlayer();
         std::string init_player(Options);
         void play_file();
+        void seek(bool);
     };
 }
 

@@ -16,10 +16,7 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
             if (i + 1 < argc)
                 opts.filename = std::string(argv[++i]);
             else
-            {
-                std::cerr << "Option \"" << arg << "\" requires one argument" << std::endl;
-                return -1;
-            }
+                return return_arg_missing_value(arg);
         }
 
         else if (arg == "-na" || arg == "--no-audio")
@@ -43,10 +40,7 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
             else if (i + 1 < argc)
                 opts.audio_language = std::string(argv[++i]);
             else
-            {
-                std::cerr << "Option \"" << arg << "\" requires one argument" << std::endl;
-                return -1;
-            }
+                return return_arg_missing_value(arg);
         }
 
         else if (arg == "-ct" || arg == "--color-threshold" || arg == "--colour-threshold")
@@ -54,10 +48,7 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
             if (i + 1 < argc)
                 opts.col_threshold = std::stoi(argv[++i]);
             else
-            {
-                std::cerr << "Option \"" << arg << "\" requires one argument" << std::endl;
-                return -1;
-            }
+                return return_arg_missing_value(arg);
         }
 
         else if (arg == "-s" || arg == "--skip-frames")
@@ -65,10 +56,21 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
             if (i + 1 < argc)
                 opts.frames_to_skip = std::stoi(argv[++i]);
             else
+                return return_arg_missing_value(arg);
+        }
+
+        else if (arg == "-sk" || arg == "--seek-step")
+        {
+            if (i + 1 < argc)
             {
-                std::cerr << "Option \"" << arg << "\" requires one argument" << std::endl;
-                return -1;
+                opts.seek_step_ms = std::stoi(argv[++i]);
+                if (opts.seek_step_ms < 0)
+                {
+                    std::cerr << arg << " requires a positive integer" << std::endl;
+                }
             }
+            else
+                return return_arg_missing_value(arg);
         }
 
         else if (arg == "-c" || arg == "color" || arg == "--colour")
@@ -100,4 +102,10 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
     }
 
     return 1;
+}
+
+int TermVideo::return_arg_missing_value(std::string arg)
+{
+    std::cerr << "Option \"" << arg << "\" requires one argument" << std::endl;
+    return -1;
 }

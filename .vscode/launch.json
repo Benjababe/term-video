@@ -42,9 +42,11 @@
                 "1",
                 // "--no-audio",
                 // "--audio-language",
-                "jpn",
+                // "jpn",
+                "--seek-step",
+                "5000",
                 "--file",
-                "./data/umi.mkv"
+                "./data/hitotsu.mp4"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

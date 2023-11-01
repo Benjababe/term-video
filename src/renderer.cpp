@@ -20,6 +20,8 @@ TermVideo::Renderer::Renderer() {}
 TermVideo::Renderer::Renderer(Options opts)
 {
 #ifdef __USE_FFMPEG
+    this->video_info.time_pt_ms = 0;
+    this->video_info.locked = false;
     this->video_info.sws_ctx = nullptr;
 #endif
 
@@ -330,9 +332,18 @@ void TermVideo::Renderer::process_video_ffmpeg()
 
     int frame_count = 0;
     int skip_count = 0;
+    this->video_info.time_pt_ms = 0;
 
-    while (!av_read_frame(this->video_info.format_ctx, &packet))
+    while (1)
     {
+        while (this->video_info.locked)
+            ;
+        this->video_info.locked = true;
+
+        int ret = av_read_frame(this->video_info.format_ctx, &packet);
+        if (ret < 0)
+            break;
+
         // skips if stream isn't the main video
         // or if there are errors with decoding the packet
         // or just a general frame skip for optimisation
@@ -343,10 +354,16 @@ void TermVideo::Renderer::process_video_ffmpeg()
         {
             av_packet_unref(&packet);
             av_frame_unref(frame);
+            this->video_info.locked = false;
             continue;
         }
 
+        this->video_info.locked = false;
         skip_count = 0;
+
+        // keep track of current video time
+        auto time_unit = av_q2d(this->video_info.stream->time_base);
+        this->video_info.time_pt_ms = frame->pts * time_unit * 1000;
 
         // reduces video resolution to fit the terminal
         this->frame_downscale_ffmpeg(frame);
@@ -373,6 +390,30 @@ void TermVideo::Renderer::process_video_ffmpeg()
     }
 }
 #endif
+
+void TermVideo::Renderer::seek(bool seek_back)
+{
+    while (this->video_info.locked)
+        ;
+    this->video_info.locked = true;
+
+    int64_t rel_time = ((seek_back) ? -1 : 1) * this->video_info.seek_step_ms;
+    int64_t time_u = this->video_info.stream->time_base.den;
+    int64_t timestamp = ((this->video_info.time_pt_ms + rel_time) * time_u) / 1000;
+    int flags = AVSEEK_FLAG_ANY;
+
+    if (timestamp < 0)
+        timestamp = 0;
+
+    int ret = av_seek_frame(this->video_info.format_ctx,
+                            this->video_info.stream->index,
+                            timestamp,
+                            flags);
+    avcodec_flush_buffers(this->video_info.codec_ctx);
+
+    this->video_info.time_pt_ms += rel_time;
+    this->video_info.locked = false;
+}
 
 /**
  * @brief Initialises values for the renderer
