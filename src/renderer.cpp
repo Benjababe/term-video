@@ -420,7 +420,7 @@ void TermVideo::Renderer::seek(bool seek_back)
  */
 void TermVideo::Renderer::init_renderer()
 {
-    set_terminal_title("term-video");
+    set_terminal_title(this->filename);
     hide_terminal_cursor();
     get_terminal_size(this->width, this->height, this->term_resized);
     init_terminal_col(this->print_colour);

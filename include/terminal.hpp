@@ -19,7 +19,7 @@
 
 namespace TermVideo
 {
-    void set_terminal_title(const char *);
+    void set_terminal_title(std::string);
     void hide_terminal_cursor();
     void get_terminal_size(int &, int &, bool &);
     void init_terminal_col(bool);

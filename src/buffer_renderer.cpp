@@ -243,7 +243,7 @@ void TermVideo::BufferRenderer::check_resize()
  */
 void TermVideo::BufferRenderer::init_renderer()
 {
-    set_terminal_title("term-video (Buffer)");
+    set_terminal_title(this->filename);
     hide_terminal_cursor();
     get_terminal_size(this->width, this->height, this->term_resized);
     init_terminal_col(this->print_colour);

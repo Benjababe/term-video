@@ -1,6 +1,6 @@
 #include "terminal.hpp"
 
-void TermVideo::set_terminal_title(const char *title)
+void TermVideo::set_terminal_title(std::string title)
 {
     std::cout << "\033]0;" << title << "\007";
 }
