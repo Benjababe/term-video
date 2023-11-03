@@ -1,8 +1,6 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-#define __USE_FFMPEG
-
 #include <algorithm>
 #include <chrono>
 #include <fstream>

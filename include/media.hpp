@@ -1,14 +1,18 @@
+#define __USE_FFMPEG
+
 #ifndef MEDIA_H
 #define MEDIA_H
 
 #include "options.hpp"
 
+#if defined(__USE_FFMPEG)
 extern "C"
 {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
 }
+#endif
 
 namespace TermVideo
 {
@@ -19,19 +23,12 @@ namespace TermVideo
         int64_t time_pt_ms;
         std::string file_path;
 
+#if defined(__USE_FFMPEG)
         const AVCodec *decoder;
         AVStream *stream;
         AVFormatContext *format_ctx;
         AVCodecContext *codec_ctx;
-    };
-
-    class MediaLoader
-    {
-    public:
-        MediaLoader(Options);
-
-        MediaInfo media_info;
-        std::string open_file(std::string);
+#endif
     };
 }
 

@@ -9,7 +9,6 @@
 #include <thread>
 #include <vector>
 
-#include "media.hpp"
 #include "optimiser.hpp"
 #include "options.hpp"
 #include "performance_checker.hpp"
@@ -31,36 +30,36 @@ typedef unsigned short WORD;
 
 namespace TermVideo
 {
-        class BufferRenderer : public Renderer
-        {
-        public:
-                BufferRenderer(Options);
-                void init_renderer() override;
-                void start_renderer() override;
+    class BufferRenderer : public Renderer
+    {
+    public:
+        BufferRenderer(Options);
+        void init_renderer() override;
+        void start_renderer() override;
 
-        private:
-                void frame_to_ascii(uchar *, const int, const int, const int);
-                void write_to_buffer(const int, const int, uchar, WORD);
-                void check_resize();
+    private:
+        void frame_to_ascii(uchar *, const int, const int, const int);
+        void write_to_buffer(const int, const int, uchar, WORD);
+        void check_resize();
 
 #if defined(__USE_OPENCV)
-                void process_video_opencv(cv::VideoCapture);
+        void process_video_opencv(cv::VideoCapture);
 #elif defined(__USE_FFMPEG)
-                void process_video_ffmpeg();
+        void process_video_ffmpeg();
 #endif
 
 #if defined(_WIN32)
-                CHAR_INFO *buffer;
-                HANDLE write_handle;
-                COORD buffer_size;
-                SMALL_RECT console_write_area;
+        CHAR_INFO *buffer;
+        HANDLE write_handle;
+        COORD buffer_size;
+        SMALL_RECT console_write_area;
 #elif defined(__linux__)
-                void set_curses_colors();
+        void set_curses_colors();
 
-                // how many steps does each colour take in init_color
-                short color_step_no;
+        // how many steps does each colour take in init_color
+        short color_step_no;
 #endif
-        };
+    };
 }
 
 #endif
