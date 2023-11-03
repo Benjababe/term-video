@@ -1,5 +1,5 @@
-#ifndef VIDEO_H
-#define VIDEO_H
+#ifndef VIDEO_PLAYER_H
+#define VIDEO_PLAYER_H
 
 #include <iostream>
 

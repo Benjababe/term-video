@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
 
-# Edit in include/renderer.hpp as well for editor highlighting
+# Edit in include/media.hpp as well
 # set(MEDIA_HANDLER opencv)
 set(MEDIA_HANDLER ffmpeg)
 

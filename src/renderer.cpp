@@ -20,11 +20,12 @@ TermVideo::Renderer::Renderer() {}
 TermVideo::Renderer::Renderer(Options opts)
 {
 #ifdef __USE_FFMPEG
-    this->video_info.time_pt_ms = 0;
-    this->video_info.locked = false;
     this->video_info.sws_ctx = nullptr;
 #endif
 
+    this->video_info.time_pt_ms = 0;
+    this->video_info.locked = false;
+    this->video_info.seek_step_ms = opts.seek_step_ms;
     this->frames_to_skip = opts.frames_to_skip;
     this->print_colour = opts.print_colour;
     this->force_aspect = opts.force_aspect;
@@ -283,21 +284,26 @@ void TermVideo::Renderer::wait_for_frame()
 #if defined(__USE_OPENCV)
 /**
  * @brief Converts a video into ASCII frames. Uses opencv4
- * @param cap Video file to be converted
  */
-void TermVideo::Renderer::process_video_opencv(cv::VideoCapture cap)
+void TermVideo::Renderer::process_video_opencv()
 {
-    double fps = cap.get(cv::CAP_PROP_FPS);
+    double fps = this->cap->get(cv::CAP_PROP_FPS);
     this->video_info.frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
 
     while (1)
     {
+        while (this->video_info.locked)
+            ;
+        this->video_info.locked = true;
+
         cv::Mat frame;
 
         for (int i = 0; i <= this->frames_to_skip; i++)
-            cap >> frame;
+            *this->cap >> frame;
 
-        int frame_count = (int)cap.get(1);
+        int frame_count = (int)this->cap->get(1);
+        this->video_info.time_pt_ms = (int64_t)this->cap->get(cv::CAP_PROP_POS_MSEC);
+        this->video_info.locked = false;
 
         // stop if EOF
         if (frame.empty())
@@ -397,6 +403,12 @@ void TermVideo::Renderer::seek(bool seek_back)
         ;
     this->video_info.locked = true;
 
+#if defined(__USE_OPENCV)
+    int64_t rel_time = ((seek_back) ? -1 : 1) * this->video_info.seek_step_ms;
+    int64_t timestamp = this->video_info.time_pt_ms + rel_time;
+    this->cap->set(cv::CAP_PROP_POS_MSEC, timestamp);
+#elif defined(__USE_FFMPEG)
+
     int64_t rel_time = ((seek_back) ? -1 : 1) * this->video_info.seek_step_ms;
     int64_t time_u = this->video_info.stream->time_base.den;
     int64_t timestamp = ((this->video_info.time_pt_ms + rel_time) * time_u) / 1000;
@@ -412,6 +424,8 @@ void TermVideo::Renderer::seek(bool seek_back)
     avcodec_flush_buffers(this->video_info.codec_ctx);
 
     this->video_info.time_pt_ms += rel_time;
+#endif
+
     this->video_info.locked = false;
 }
 
@@ -497,9 +511,9 @@ void TermVideo::Renderer::start_renderer()
         return;
 
 #ifdef __USE_OPENCV
-    cv::VideoCapture cap(this->filename);
-    this->process_video_opencv(cap);
-    cap.release();
+    this->cap = new cv::VideoCapture(this->filename);
+    this->process_video_opencv();
+    this->cap->release();
 #elif defined(__USE_FFMPEG)
     this->process_video_ffmpeg();
 #endif

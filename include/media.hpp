@@ -5,14 +5,12 @@
 
 #include "options.hpp"
 
-#if defined(__USE_FFMPEG)
 extern "C"
 {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
 }
-#endif
 
 namespace TermVideo
 {
@@ -23,12 +21,10 @@ namespace TermVideo
         int64_t time_pt_ms;
         std::string file_path;
 
-#if defined(__USE_FFMPEG)
         const AVCodec *decoder;
         AVStream *stream;
         AVFormatContext *format_ctx;
         AVCodecContext *codec_ctx;
-#endif
     };
 }
 

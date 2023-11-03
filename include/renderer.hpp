@@ -79,6 +79,7 @@ namespace TermVideo
         void wait_for_frame();
 
 #if defined(__USE_OPENCV)
+        cv::VideoCapture *cap;
         void frame_downscale_opencv(cv::Mat &);
 #elif defined(__USE_FFMPEG)
         void frame_downscale_ffmpeg(AVFrame *);
@@ -102,7 +103,7 @@ namespace TermVideo
         void print(std::string ascii_frame);
 
 #if defined(__USE_OPENCV)
-        void process_video_opencv(cv::VideoCapture);
+        void process_video_opencv();
 #elif defined(__USE_FFMPEG)
         void process_video_ffmpeg();
 #endif

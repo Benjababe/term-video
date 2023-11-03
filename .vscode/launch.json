@@ -34,7 +34,7 @@
             "program": "${command:cmake.launchTargetPath}",
             "args": [
                 "--colour",
-                // "--buffer",
+                "--buffer",
                 "--force-aspect",
                 "--threshold",
                 "8",

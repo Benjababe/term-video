@@ -13,6 +13,14 @@
  */
 TermVideo::BufferRenderer::BufferRenderer(Options opts)
 {
+#ifdef __USE_FFMPEG
+    this->video_info.sws_ctx = nullptr;
+#endif
+
+    this->video_info.time_pt_ms = 0;
+    this->video_info.locked = false;
+    this->video_info.seek_step_ms = opts.seek_step_ms;
+    this->video_info.seek_step_ms = opts.seek_step_ms;
     this->frames_to_skip = opts.frames_to_skip;
     this->print_colour = opts.print_colour;
     this->force_aspect = opts.force_aspect;
@@ -131,22 +139,26 @@ void TermVideo::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int wi
 #if defined(__USE_OPENCV)
 /**
  * @brief Converts a video into ASCII frames
- *
- * @param cap Video file to be converted
  */
-void TermVideo::BufferRenderer::process_video_opencv(cv::VideoCapture cap)
+void TermVideo::BufferRenderer::process_video_opencv()
 {
-    double fps = cap.get(cv::CAP_PROP_FPS);
+    double fps = this->cap->get(cv::CAP_PROP_FPS);
     this->video_info.frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
 
     while (1)
     {
+        while (this->video_info.locked)
+            ;
+        this->video_info.locked = true;
+
         cv::Mat frame;
 
         for (int i = 0; i < (this->frames_to_skip + 1); i++)
-            cap >> frame;
+            *this->cap >> frame;
 
-        int frame_count = (int)cap.get(1);
+        int frame_count = (int)this->cap->get(1);
+        this->video_info.time_pt_ms = (int64_t)this->cap->get(cv::CAP_PROP_POS_MSEC);
+        this->video_info.locked = false;
 
         // stop if EOF
         if (frame.empty())
@@ -298,9 +310,9 @@ void TermVideo::BufferRenderer::start_renderer()
         return;
 
 #if defined(__USE_OPENCV)
-    cv::VideoCapture cap(this->filename);
-    this->process_video_opencv(cap);
-    cap.release();
+    this->cap = new cv::VideoCapture(this->filename);
+    this->process_video_opencv();
+    this->cap->release();
 #elif defined(__USE_FFMPEG)
     this->process_video_ffmpeg();
 #endif
