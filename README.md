@@ -52,7 +52,7 @@ For coloured line printing, ANSI colour codes are used to switch the foreground 
 `--threshold` will include a threshold on how different a colour must be with the previous colour used to use an ANSI code. If you pass `--threshold 4`, and the previous colour was RGB(120, 200, 255), the next pixel will only use an ANSI colour code if it's outside of RGB([116,124], [196,204], [251,255]). 
 
 ## Coloured Buffer Printing Limitation
-With Coloured buffer printing, as far as I know, each pixel will be limited to only 16 colours specified [here for Windows](https://learn.microsoft.com/en-us/windows/console/char-info-str).
+With Coloured buffer printing in Windows, output will be limited to 16 colours as it uses [CHAR_INFO](https://learn.microsoft.com/en-us/windows/console/char-info-str).
 
 ## To Dos
 
