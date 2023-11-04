@@ -17,7 +17,7 @@ uchar TermVideo::get_luminance_approximate(uchar r, uchar g, uchar b, bool force
            b_mult = (force_avg_luminance) ? 0.3333 : 0.0722;
 
     double luminance = (r_mult * r) + (g_mult * g) + (b_mult * b);
-    return (uchar)luminance;
+    return static_cast<uchar>(luminance);
 }
 
 #if defined(_WIN32)

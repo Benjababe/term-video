@@ -13,7 +13,7 @@
  */
 TermVideo::BufferRenderer::BufferRenderer(MediaInfo *info, Options opts)
 {
-    this->info = (VideoInfo *)info;
+    this->info = static_cast<VideoInfo *>(info);
     this->info->v_clock_ms = 0;
     this->info->seek_step_ms = opts.seek_step_ms;
     this->info->seek_step_ms = opts.seek_step_ms;
@@ -155,8 +155,8 @@ void TermVideo::BufferRenderer::process_video_opencv()
         for (int i = 0; i < (this->frames_to_skip + 1); i++)
             *this->cap >> frame;
 
-        int frame_count = (int)this->cap->get(1);
-        this->info->time_pt_ms = (int64_t)this->cap->get(cv::CAP_PROP_POS_MSEC);
+        int frame_count = static_cast<int>(this->cap->get(1));
+        this->info->time_pt_ms = static_cast<int64_t>(this->cap->get(cv::CAP_PROP_POS_MSEC));
 
         // stop if EOF
         if (frame.empty())
@@ -267,14 +267,14 @@ void TermVideo::BufferRenderer::init_renderer()
 #endif
 
 #if defined(_WIN32)
-    short width_s = (short)this->width - 1,
-          height_s = (short)this->height - 1;
+    short width_s = static_cast<short>(this->width - 1),
+          height_s = static_cast<short>(this->height - 1);
 
     this->write_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     this->buffer = new CHAR_INFO[this->width * this->height];
     this->console_write_area = {0, 0, width_s, height_s};
 
-    this->buffer_size = {(short)this->width, (short)this->height};
+    this->buffer_size = {static_cast<short>(this->width), static_cast<short>(this->height)};
     SetConsoleScreenBufferSize(this->write_handle, this->buffer_size);
 
     for (int i = 0; i < (this->width * this->height); i++)

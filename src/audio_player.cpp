@@ -5,7 +5,7 @@ namespace TermVideo
 {
     AudioPlayer::AudioPlayer(MediaInfo *info)
     {
-        this->info = (AudioInfo *)info;
+        this->info = static_cast<AudioInfo *>(info);
         this->info->a_clock_ms = 0;
         this->info->a_format_ctx = nullptr;
     }
@@ -129,7 +129,7 @@ namespace TermVideo
             SAMPLE_FORMAT,
             this->info->a_stream->codecpar->sample_rate,
             &this->info->a_stream->codecpar->ch_layout,
-            (AVSampleFormat)this->info->a_stream->codecpar->format,
+            static_cast<AVSampleFormat>(this->info->a_stream->codecpar->format),
             this->info->a_stream->codecpar->sample_rate,
             0,
             nullptr);

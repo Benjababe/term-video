@@ -19,7 +19,7 @@ TermVideo::Renderer::Renderer() {}
  */
 TermVideo::Renderer::Renderer(MediaInfo *info, Options opts)
 {
-    this->info = (VideoInfo *)info;
+    this->info = static_cast<VideoInfo *>(info);
     this->info->v_clock_ms = 0;
     this->info->seek_step_ms = opts.seek_step_ms;
 
@@ -54,15 +54,15 @@ TermVideo::Renderer::Renderer(MediaInfo *info, Options opts)
 char TermVideo::Renderer::pixel_to_ascii(uchar pixel_r, uchar pixel_g, uchar pixel_b)
 {
     uchar luminance = get_luminance_approximate(pixel_r, pixel_g, pixel_b, this->force_avg_luminance);
-    double normalised_luminance = (double)luminance / 255;
+    double normalised_luminance = static_cast<double>(luminance) / 255;
 
     // choose a character set to print out
     std::string ascii_char_set = this->char_set;
     size_t len = ascii_char_set.length();
-    int ascii_index = (int)(normalised_luminance * ascii_char_set.length());
+    int ascii_index = static_cast<int>(normalised_luminance * ascii_char_set.length());
 
     if (ascii_index >= ascii_char_set.length())
-        ascii_index = (int)ascii_char_set.length() - 1;
+        ascii_index = static_cast<int>(ascii_char_set.length() - 1);
 
     return ascii_char_set[ascii_index];
 }
@@ -153,7 +153,9 @@ void TermVideo::Renderer::frame_downscale_opencv(cv::Mat &frame)
     if (this->force_aspect && frame.rows > this->height)
     {
         new_height = this->height;
-        new_width = (int)std::min((double)frame.cols * ((double)this->height / frame.rows) * 2, (double)this->width);
+        new_width = static_cast<int>(std::min(
+            static_cast<double>(this->width),
+            static_cast<double>(frame.cols) * (static_cast<double>(this->height) / frame.rows) * 2));
         this->padding_x = (this->width - new_width);
         this->padding_x = (this->padding_x / 2) + (this->padding_x & 1);
     }
@@ -189,8 +191,8 @@ void TermVideo::Renderer::frame_downscale_ffmpeg(AVFrame *frame)
         int new_width = frame->width,
             new_height = frame->height;
 
-        double terminal_aspect = (double)this->width / ((double)this->height * 2);
-        double video_aspect = (double)frame->width / (double)frame->height;
+        double terminal_aspect = static_cast<double>(this->width) / (static_cast<double>(this->height) * 2);
+        double video_aspect = static_cast<double>(frame->width) / static_cast<double>(frame->height);
 
         // NOTE: For the aspect ratio resizing, video_aspect is multiplied
         // by 2 as the pixel sizes for a terminal character is 2:1 in height:width
@@ -200,9 +202,10 @@ void TermVideo::Renderer::frame_downscale_ffmpeg(AVFrame *frame)
         if (this->force_aspect && video_aspect > terminal_aspect)
         {
             new_width = this->width;
-            new_height = (int)std::min(
-                (double)this->height,
-                ((double)this->width / (video_aspect * 2)));
+            new_height = static_cast<int>(
+                std::min(
+                    static_cast<double>(this->height),
+                    (static_cast<double>(this->width) / (video_aspect * 2))));
             this->padding_y = this->height - new_height;
             this->padding_y = (this->padding_y / 2);
         }
@@ -211,9 +214,9 @@ void TermVideo::Renderer::frame_downscale_ffmpeg(AVFrame *frame)
         else if (this->force_aspect && video_aspect < terminal_aspect)
         {
             new_height = this->height;
-            new_width = (int)std::min(
-                (double)this->width,
-                (double)this->height * video_aspect * 2);
+            new_width = static_cast<int>(std::min(
+                static_cast<double>(this->width),
+                static_cast<double>(this->height * video_aspect * 2)));
             this->padding_x = this->width - new_width;
             this->padding_x = (this->padding_x / 2);
         }
@@ -228,7 +231,7 @@ void TermVideo::Renderer::frame_downscale_ffmpeg(AVFrame *frame)
         this->info->new_width = new_width;
         this->info->new_height = new_height;
         this->info->v_sws_ctx = sws_getContext(
-            frame->width, frame->height, (AVPixelFormat)frame->format,
+            frame->width, frame->height, static_cast<AVPixelFormat>(frame->format),
             new_width, new_height, output_format,
             SWS_BILINEAR,
             nullptr, nullptr, nullptr);
@@ -298,8 +301,8 @@ void TermVideo::Renderer::process_video_opencv()
         for (int i = 0; i <= this->frames_to_skip; i++)
             *this->cap >> frame;
 
-        int frame_count = (int)this->cap->get(1);
-        this->info->time_pt_ms = (int64_t)this->cap->get(cv::CAP_PROP_POS_MSEC);
+        int frame_count = static_cast<int>(this->cap->get(1));
+        this->info->time_pt_ms = static_cast<int64_t>this->cap->get(cv::CAP_PROP_POS_MSEC));
 
         // stop if EOF
         if (frame.empty())
