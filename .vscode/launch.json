@@ -46,7 +46,7 @@
                 "--seek-step",
                 "5000",
                 "--file",
-                "./data/sync.webm"
+                "./data/hidaneko.mp4"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

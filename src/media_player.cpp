@@ -2,13 +2,18 @@
 
 namespace TermVideo
 {
+    MediaPlayer::MediaPlayer()
+    {
+        this->info = new MediaInfo();
+    }
+
     void MediaPlayer::time_check()
     {
         while (1)
         {
-            std::cout << "Video: " << this->renderer->info.clock_ms
-                      << " Audio: " << this->audio_player->info.clock_ms
-                      << " Diff: " << this->renderer->info.clock_ms - this->audio_player->info.clock_ms
+            std::cout << "Video: " << this->info->v_clock_ms
+                      << " Audio: " << this->info->a_clock_ms
+                      << " Diff: " << this->info->v_clock_ms - this->info->a_clock_ms
                       << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(33));
         }
@@ -24,9 +29,9 @@ namespace TermVideo
         this->seek_step_ms = opts.seek_step_ms;
 
         if (opts.use_buffer)
-            this->renderer = new BufferRenderer(opts);
+            this->renderer = new BufferRenderer(this->info, opts);
         else
-            this->renderer = new Renderer(opts);
+            this->renderer = new Renderer(this->info, opts);
 
         this->renderer->init_renderer();
 
@@ -39,7 +44,7 @@ namespace TermVideo
         if (res.length() > 0)
             return res;
 
-        this->audio_player = new AudioPlayer();
+        this->audio_player = new AudioPlayer(this->info);
         this->audio_player->init_player(opts);
 #endif
 
@@ -63,16 +68,16 @@ namespace TermVideo
      */
     void MediaPlayer::seek(bool seek_back)
     {
-        while (this->renderer->info.locked)
+        while (this->info->v_locked)
             ;
-        this->renderer->info.locked = true;
-        while (this->audio_player->info.locked)
+        this->info->v_locked = true;
+        while (this->info->a_locked)
             ;
-        this->audio_player->info.locked = true;
+        this->info->a_locked = true;
 
         int64_t rel_time = this->seek_step_ms;
-        int64_t v_time_pt = this->renderer->info.clock_ms;
-        int64_t a_time_pt = this->audio_player->info.clock_ms;
+        int64_t v_time_pt = this->info->v_clock_ms;
+        int64_t a_time_pt = this->info->a_clock_ms;
         int flags = AVSEEK_FLAG_FRAME;
 
         if (seek_back)
@@ -84,7 +89,7 @@ namespace TermVideo
         this->renderer->seek(v_time_pt + rel_time, flags);
         this->audio_player->seek(a_time_pt + rel_time, flags);
 
-        this->renderer->info.locked = false;
-        this->audio_player->info.locked = false;
+        this->info->v_locked = false;
+        this->info->a_locked = false;
     }
 }

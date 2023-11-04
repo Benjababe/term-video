@@ -38,9 +38,9 @@ namespace TermVideo
         void init_output_device();
 
     public:
-        AudioInfo info;
+        AudioInfo *info;
 
-        AudioPlayer();
+        AudioPlayer(MediaInfo *);
         ~AudioPlayer();
         std::string init_player(Options);
         void play_file();

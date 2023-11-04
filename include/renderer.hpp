@@ -59,14 +59,13 @@ namespace TermVideo
     {
     public:
         Renderer();
-        Renderer(Options);
+        Renderer(MediaInfo *, Options);
         virtual void init_renderer();
         virtual void start_renderer();
         void seek(int64_t, int);
         std::string open_file();
         std::string get_decoder();
 
-        VideoInfo info;
         Optimiser optimiser;
         PerformanceChecker perf_checker;
 
@@ -81,6 +80,7 @@ namespace TermVideo
         void frame_downscale_ffmpeg(AVFrame *);
 #endif
 
+        VideoInfo *info;
         int frames_to_skip;
         int width, height;
         int padding_x, padding_y;

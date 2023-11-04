@@ -17,17 +17,20 @@ namespace TermVideo
 {
     struct MediaInfo
     {
-        bool locked;
         int seek_step_ms;
-        double clock_ms;
         std::string file_path;
-        AVFormatContext *format_ctx;
 
+        bool v_locked;
+        double v_clock_ms;
+        AVFormatContext *v_format_ctx;
         const AVCodec *v_decoder;
         AVStream *v_stream;
         AVCodecContext *v_codec_ctx;
         SwsContext *v_sws_ctx;
 
+        bool a_locked;
+        double a_clock_ms;
+        AVFormatContext *a_format_ctx;
         const AVCodec *a_decoder;
         AVStream *a_stream;
         AVCodecContext *a_codec_ctx;
