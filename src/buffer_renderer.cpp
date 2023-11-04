@@ -15,7 +15,6 @@ TermVideo::BufferRenderer::BufferRenderer(MediaInfo *info, Options opts)
 {
     this->info = (VideoInfo *)info;
     this->info->v_clock_ms = 0;
-    this->info->v_locked = false;
     this->info->seek_step_ms = opts.seek_step_ms;
     this->info->seek_step_ms = opts.seek_step_ms;
 
@@ -150,9 +149,6 @@ void TermVideo::BufferRenderer::process_video_opencv()
     while (1)
     {
         auto start_time = std::chrono::steady_clock::now();
-        while (this->info->v_locked)
-            ;
-        this->info->v_locked = true;
 
         cv::Mat frame;
 
@@ -161,7 +157,6 @@ void TermVideo::BufferRenderer::process_video_opencv()
 
         int frame_count = (int)this->cap->get(1);
         this->info->time_pt_ms = (int64_t)this->cap->get(cv::CAP_PROP_POS_MSEC);
-        this->info->v_locked = false;
 
         // stop if EOF
         if (frame.empty())

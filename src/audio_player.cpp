@@ -7,7 +7,6 @@ namespace TermVideo
     {
         this->info = (AudioInfo *)info;
         this->info->a_clock_ms = 0;
-        this->info->a_locked = false;
         this->info->a_format_ctx = nullptr;
     }
 
@@ -150,9 +149,8 @@ namespace TermVideo
 
         while (1)
         {
-            while (this->info->a_locked)
-                ;
-            this->info->a_locked = true;
+            if (this->info->a_seek.req)
+                this->seek(this->info->a_seek);
 
             int ret = av_read_frame(this->info->a_format_ctx, packet);
             if (ret < 0)
@@ -164,11 +162,8 @@ namespace TermVideo
             {
                 av_packet_unref(packet);
                 av_frame_unref(frame);
-                this->info->a_locked = false;
                 continue;
             }
-
-            this->info->a_locked = false;
 
             // Resample frame
             AVFrame *resampled_frame = av_frame_alloc();
@@ -210,10 +205,10 @@ namespace TermVideo
         av_packet_free(&packet);
     }
 
-    void AudioPlayer::seek(int64_t time_pt_ms, int flags)
+    void AudioPlayer::seek(Seek seek_info)
     {
         int64_t time_u = this->info->a_stream->time_base.den;
-        int64_t timestamp = (time_pt_ms * time_u) / 1000;
+        int64_t timestamp = (seek_info.pos * time_u) / 1000;
 
         if (timestamp < 0)
             timestamp = 0;
@@ -221,9 +216,10 @@ namespace TermVideo
         int ret = av_seek_frame(this->info->a_format_ctx,
                                 this->info->a_stream->index,
                                 timestamp,
-                                flags);
+                                seek_info.flags);
         avcodec_flush_buffers(this->info->a_codec_ctx);
 
-        this->info->a_clock_ms = time_pt_ms;
+        this->info->a_clock_ms = seek_info.pos;
+        this->info->a_seek.req = false;
     }
 }

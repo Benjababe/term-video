@@ -68,16 +68,7 @@ namespace TermVideo
      */
     void MediaPlayer::seek(bool seek_back)
     {
-        while (this->info->v_locked)
-            ;
-        this->info->v_locked = true;
-        while (this->info->a_locked)
-            ;
-        this->info->a_locked = true;
-
         int64_t rel_time = this->seek_step_ms;
-        int64_t v_time_pt = this->info->v_clock_ms;
-        int64_t a_time_pt = this->info->a_clock_ms;
         int flags = AVSEEK_FLAG_FRAME;
 
         if (seek_back)
@@ -86,10 +77,7 @@ namespace TermVideo
             flags |= AVSEEK_FLAG_BACKWARD;
         }
 
-        this->renderer->seek(v_time_pt + rel_time, flags);
-        this->audio_player->seek(a_time_pt + rel_time, flags);
-
-        this->info->v_locked = false;
-        this->info->a_locked = false;
+        this->info->a_seek = {this->info->a_clock_ms + rel_time, flags, true};
+        this->info->v_seek = {this->info->v_clock_ms + rel_time, flags, true};
     }
 }

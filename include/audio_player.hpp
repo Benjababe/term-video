@@ -44,7 +44,7 @@ namespace TermVideo
         ~AudioPlayer();
         std::string init_player(Options);
         void play_file();
-        void seek(int64_t, int);
+        void seek(Seek);
     };
 }
 

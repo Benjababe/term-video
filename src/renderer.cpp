@@ -21,7 +21,6 @@ TermVideo::Renderer::Renderer(MediaInfo *info, Options opts)
 {
     this->info = (VideoInfo *)info;
     this->info->v_clock_ms = 0;
-    this->info->v_locked = false;
     this->info->seek_step_ms = opts.seek_step_ms;
 
 #ifdef __USE_FFMPEG
@@ -294,10 +293,6 @@ void TermVideo::Renderer::process_video_opencv()
 
     while (1)
     {
-        while (this->info->v_locked)
-            ;
-        this->info->v_locked = true;
-
         cv::Mat frame;
 
         for (int i = 0; i <= this->frames_to_skip; i++)
@@ -305,7 +300,6 @@ void TermVideo::Renderer::process_video_opencv()
 
         int frame_count = (int)this->cap->get(1);
         this->info->time_pt_ms = (int64_t)this->cap->get(cv::CAP_PROP_POS_MSEC);
-        this->info->v_locked = false;
 
         // stop if EOF
         if (frame.empty())
@@ -344,9 +338,8 @@ void TermVideo::Renderer::process_video_ffmpeg()
 
     while (1)
     {
-        while (this->info->v_locked)
-            ;
-        this->info->v_locked = true;
+        if (this->info->v_seek.req)
+            this->seek(this->info->v_seek);
 
         int ret = av_read_frame(this->info->v_format_ctx, &packet);
         if (ret < 0)
@@ -362,11 +355,9 @@ void TermVideo::Renderer::process_video_ffmpeg()
         {
             av_packet_unref(&packet);
             av_frame_unref(frame);
-            this->info->v_locked = false;
             continue;
         }
 
-        this->info->v_locked = false;
         skip_count = 0;
 
         // keep track of current video time
@@ -399,14 +390,14 @@ void TermVideo::Renderer::process_video_ffmpeg()
 }
 #endif
 
-void TermVideo::Renderer::seek(int64_t time_pt_ms, int flags)
+void TermVideo::Renderer::seek(Seek seek_info)
 {
 #if defined(__USE_OPENCV)
     this->cap->set(cv::CAP_PROP_POS_MSEC, time_pt_ms);
 #elif defined(__USE_FFMPEG)
 
     int64_t time_u = this->info->v_stream->time_base.den;
-    int64_t timestamp = (time_pt_ms * time_u) / 1000;
+    int64_t timestamp = (seek_info.pos * time_u) / 1000;
 
     if (timestamp < 0)
         timestamp = 0;
@@ -414,11 +405,13 @@ void TermVideo::Renderer::seek(int64_t time_pt_ms, int flags)
     int ret = av_seek_frame(this->info->v_format_ctx,
                             this->info->v_stream->index,
                             timestamp,
-                            flags);
+                            seek_info.flags);
     avcodec_flush_buffers(this->info->v_codec_ctx);
 
-    this->info->v_clock_ms = time_pt_ms;
+    this->info->v_clock_ms = seek_info.pos;
 #endif
+
+    this->info->v_seek.req = false;
 }
 
 /**

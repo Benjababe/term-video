@@ -62,7 +62,7 @@ namespace TermVideo
         Renderer(MediaInfo *, Options);
         virtual void init_renderer();
         virtual void start_renderer();
-        void seek(int64_t, int);
+        void seek(Seek);
         std::string open_file();
         std::string get_decoder();
 
