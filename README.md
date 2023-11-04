@@ -67,7 +67,8 @@ With Coloured buffer printing in Windows, output will be limited to 16 colours a
 - [x] Audio playback
 - [x] Handle resolution changes
 - [ ] Audio track selection
+- [ ] Subtitle display
 - [ ] Subtitle selection
-- [ ] Video seeking
+- [ ] Video seeking (Technically works but easily desynced)
 - [ ] Proper linux buffer output colours
 - [ ] More character support
