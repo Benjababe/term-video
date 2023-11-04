@@ -18,7 +18,7 @@ namespace TermVideo
     {
         bool locked;
         int seek_step_ms;
-        int64_t time_pt_ms;
+        double clock_ms;
         std::string file_path;
 
         const AVCodec *decoder;

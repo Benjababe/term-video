@@ -10,25 +10,20 @@
 #include "buffer_renderer.hpp"
 #include "export.hpp"
 #include "keyboard.hpp"
+#include "media_player.hpp"
 #include "optimiser.hpp"
 #include "options.hpp"
 #include "renderer.hpp"
 #include "terminal.hpp"
-#include "video_player.hpp"
 
-void play_audio(TermVideo::AudioPlayer *audio_player)
+void play_media(TermVideo::MediaPlayer *media_player)
 {
-    audio_player->play_file();
+    media_player->play_file();
 }
 
-void play_video(TermVideo::VideoPlayer *video_player)
+void listen_keys(TermVideo::MediaPlayer *media_player)
 {
-    video_player->play_file();
-}
-
-void listen_keys(TermVideo::AudioPlayer *audio_player, TermVideo::VideoPlayer *video_player)
-{
-    TermVideo::listen_seek_keys(audio_player, video_player);
+    TermVideo::listen_seek_keys(media_player);
 }
 
 int main(int argc, char **argv)
@@ -45,8 +40,8 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    TermVideo::AudioPlayer audio_player;
-    res = audio_player.init_player(opts);
+    TermVideo::MediaPlayer media_player;
+    res = media_player.init_player(opts);
     if (res.length() > 0)
     {
         std::cerr << res << std::endl;
@@ -54,21 +49,10 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    TermVideo::VideoPlayer video_player;
-    res = video_player.init_player(opts);
-    if (res.length() > 0)
-    {
-        std::cerr << res << std::endl;
-        std::cin.ignore();
-        return 0;
-    }
+    std::thread thread_media(play_media, &media_player);
+    std::thread thread_keyboard(listen_keys, &media_player);
 
-    std::thread thread_audio(play_audio, &audio_player);
-    std::thread thread_video(play_video, &video_player);
-    std::thread thread_keyboard(listen_keys, &audio_player, &video_player);
-
-    thread_audio.join();
-    thread_video.join();
+    thread_media.join();
     thread_keyboard.join();
 
     std::cin.ignore();

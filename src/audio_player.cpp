@@ -5,7 +5,7 @@ namespace TermVideo
 {
     AudioPlayer::AudioPlayer()
     {
-        this->audio_info.time_pt_ms = 0;
+        this->audio_info.clock_ms = 0;
         this->audio_info.locked = false;
         this->audio_info.format_ctx = nullptr;
     }
@@ -52,8 +52,6 @@ namespace TermVideo
 
     std::string AudioPlayer::init_player(Options opts)
     {
-        this->audio_info.seek_step_ms = opts.seek_step_ms;
-
         this->use_audio = opts.use_audio;
         if (!this->use_audio)
             return "";
@@ -179,7 +177,7 @@ namespace TermVideo
 
             // keep track of current audio time
             auto time_unit = av_q2d(this->audio_info.stream->time_base);
-            this->audio_info.time_pt_ms = frame->pts * time_unit * 1000;
+            this->audio_info.clock_ms = frame->best_effort_timestamp * time_unit * 1000;
 
             ret = swr_convert_frame(this->audio_info.swr_ctx, resampled_frame, frame);
 
@@ -201,16 +199,10 @@ namespace TermVideo
         av_packet_free(&packet);
     }
 
-    void AudioPlayer::seek(bool seek_back)
+    void AudioPlayer::seek(int64_t time_pt_ms, int flags)
     {
-        while (this->audio_info.locked)
-            ;
-        this->audio_info.locked = true;
-
-        int64_t rel_time = ((seek_back) ? -1 : 1) * this->audio_info.seek_step_ms;
         int64_t time_u = this->audio_info.stream->time_base.den;
-        int64_t timestamp = ((this->audio_info.time_pt_ms + rel_time) * time_u) / 1000;
-        int flags = AVSEEK_FLAG_ANY;
+        int64_t timestamp = (time_pt_ms * time_u) / 1000;
 
         if (timestamp < 0)
             timestamp = 0;
@@ -221,7 +213,6 @@ namespace TermVideo
                                 flags);
         avcodec_flush_buffers(this->audio_info.codec_ctx);
 
-        this->audio_info.time_pt_ms += rel_time;
-        this->audio_info.locked = false;
+        this->audio_info.clock_ms = time_pt_ms;
     }
 }

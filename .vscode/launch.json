@@ -34,10 +34,10 @@
             "program": "${command:cmake.launchTargetPath}",
             "args": [
                 "--colour",
-                "--buffer",
+                // "--buffer",
                 "--force-aspect",
                 "--threshold",
-                "8",
+                "0",
                 "--skip-frames",
                 "1",
                 // "--no-audio",
@@ -46,7 +46,7 @@
                 "--seek-step",
                 "5000",
                 "--file",
-                "./data/hitotsu.mp4"
+                "./data/sync.webm"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

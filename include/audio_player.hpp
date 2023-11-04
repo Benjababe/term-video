@@ -30,7 +30,6 @@ namespace TermVideo
     {
     private:
         bool use_audio;
-        AudioInfo audio_info;
         ao_sample_format ao_s_format;
         ao_device *a_device;
 
@@ -40,11 +39,13 @@ namespace TermVideo
         void init_output_device();
 
     public:
+        AudioInfo audio_info;
+
         AudioPlayer();
         ~AudioPlayer();
         std::string init_player(Options);
         void play_file();
-        void seek(bool);
+        void seek(int64_t, int);
     };
 }
 

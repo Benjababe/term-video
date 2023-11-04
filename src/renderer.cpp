@@ -23,7 +23,7 @@ TermVideo::Renderer::Renderer(Options opts)
     this->video_info.sws_ctx = nullptr;
 #endif
 
-    this->video_info.time_pt_ms = 0;
+    this->video_info.clock_ms = 0;
     this->video_info.locked = false;
     this->video_info.seek_step_ms = opts.seek_step_ms;
     this->frames_to_skip = opts.frames_to_skip;
@@ -338,7 +338,7 @@ void TermVideo::Renderer::process_video_ffmpeg()
 
     int frame_count = 0;
     int skip_count = 0;
-    this->video_info.time_pt_ms = 0;
+    this->video_info.clock_ms = 0;
 
     while (1)
     {
@@ -369,7 +369,7 @@ void TermVideo::Renderer::process_video_ffmpeg()
 
         // keep track of current video time
         auto time_unit = av_q2d(this->video_info.stream->time_base);
-        this->video_info.time_pt_ms = frame->pts * time_unit * 1000;
+        this->video_info.clock_ms = frame->best_effort_timestamp * time_unit * 1000;
 
         // reduces video resolution to fit the terminal
         this->frame_downscale_ffmpeg(frame);
@@ -397,22 +397,14 @@ void TermVideo::Renderer::process_video_ffmpeg()
 }
 #endif
 
-void TermVideo::Renderer::seek(bool seek_back)
+void TermVideo::Renderer::seek(int64_t time_pt_ms, int flags)
 {
-    while (this->video_info.locked)
-        ;
-    this->video_info.locked = true;
-
 #if defined(__USE_OPENCV)
-    int64_t rel_time = ((seek_back) ? -1 : 1) * this->video_info.seek_step_ms;
-    int64_t timestamp = this->video_info.time_pt_ms + rel_time;
-    this->cap->set(cv::CAP_PROP_POS_MSEC, timestamp);
+    this->cap->set(cv::CAP_PROP_POS_MSEC, time_pt_ms);
 #elif defined(__USE_FFMPEG)
 
-    int64_t rel_time = ((seek_back) ? -1 : 1) * this->video_info.seek_step_ms;
     int64_t time_u = this->video_info.stream->time_base.den;
-    int64_t timestamp = ((this->video_info.time_pt_ms + rel_time) * time_u) / 1000;
-    int flags = AVSEEK_FLAG_ANY;
+    int64_t timestamp = (time_pt_ms * time_u) / 1000;
 
     if (timestamp < 0)
         timestamp = 0;
@@ -423,10 +415,8 @@ void TermVideo::Renderer::seek(bool seek_back)
                             flags);
     avcodec_flush_buffers(this->video_info.codec_ctx);
 
-    this->video_info.time_pt_ms += rel_time;
+    this->video_info.clock_ms = time_pt_ms;
 #endif
-
-    this->video_info.locked = false;
 }
 
 /**

@@ -97,7 +97,9 @@
         "numbers": "cpp",
         "semaphore": "cpp",
         "typeindex": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "buffer": "cpp",
+        "netfwd": "cpp"
     },
     "cmake.configureOnOpen": false,
     "C_Cpp.dimInactiveRegions": true

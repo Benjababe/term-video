@@ -2,7 +2,7 @@
 
 namespace TermVideo
 {
-    void listen_seek_keys(AudioPlayer *audio_player, VideoPlayer *video_player)
+    void listen_seek_keys(MediaPlayer *media_player)
     {
         HWND console = GetForegroundWindow();
         bool ctrl_pressed = false;
@@ -22,16 +22,14 @@ namespace TermVideo
 
             if (GetKeyState(VK_LEFT) & 0x8000)
             {
-                video_player->seek(true);
-                audio_player->seek(true);
+                media_player->seek(true);
                 while (GetKeyState(VK_LEFT) & 0x8000)
                     ;
             }
 
             if (GetKeyState(VK_RIGHT) & 0x8000)
             {
-                video_player->seek(false);
-                audio_player->seek(false);
+                media_player->seek(false);
                 while (GetKeyState(VK_RIGHT) & 0x8000)
                     ;
             }

@@ -66,7 +66,7 @@ namespace TermVideo
         Renderer(Options);
         virtual void init_renderer();
         virtual void start_renderer();
-        void seek(bool);
+        void seek(int64_t, int);
         std::string open_file();
         std::string get_decoder();
 

@@ -17,7 +17,7 @@ TermVideo::BufferRenderer::BufferRenderer(Options opts)
     this->video_info.sws_ctx = nullptr;
 #endif
 
-    this->video_info.time_pt_ms = 0;
+    this->video_info.clock_ms = 0;
     this->video_info.locked = false;
     this->video_info.seek_step_ms = opts.seek_step_ms;
     this->video_info.seek_step_ms = opts.seek_step_ms;
@@ -147,6 +147,7 @@ void TermVideo::BufferRenderer::process_video_opencv()
 
     while (1)
     {
+        auto start_time = std::chrono::steady_clock::now();
         while (this->video_info.locked)
             ;
         this->video_info.locked = true;
@@ -215,6 +216,10 @@ void TermVideo::BufferRenderer::process_video_ffmpeg()
         if (skip_count++ < this->frames_to_skip)
             continue;
         skip_count = 0;
+
+        // keep track of current video time
+        double time_unit = av_q2d(this->video_info.stream->time_base);
+        this->video_info.clock_ms = frame->pts * time_unit * 1000;
 
         // reduces video resolution to fit the terminal
         this->frame_downscale_ffmpeg(frame);
