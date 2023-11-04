@@ -49,10 +49,6 @@ namespace TermVideo
 {
     struct VideoInfo : MediaInfo
     {
-#if defined(__USE_FFMPEG)
-        SwsContext *sws_ctx;
-#endif
-
         int64 frametime_ns;
         int colour_channels;
         int new_width;
@@ -70,7 +66,7 @@ namespace TermVideo
         std::string open_file();
         std::string get_decoder();
 
-        VideoInfo video_info;
+        VideoInfo info;
         Optimiser optimiser;
         PerformanceChecker perf_checker;
 

@@ -14,13 +14,13 @@
 TermVideo::BufferRenderer::BufferRenderer(Options opts)
 {
 #ifdef __USE_FFMPEG
-    this->video_info.sws_ctx = nullptr;
+    this->info.v_sws_ctx = nullptr;
 #endif
 
-    this->video_info.clock_ms = 0;
-    this->video_info.locked = false;
-    this->video_info.seek_step_ms = opts.seek_step_ms;
-    this->video_info.seek_step_ms = opts.seek_step_ms;
+    this->info.clock_ms = 0;
+    this->info.locked = false;
+    this->info.seek_step_ms = opts.seek_step_ms;
+    this->info.seek_step_ms = opts.seek_step_ms;
     this->frames_to_skip = opts.frames_to_skip;
     this->print_colour = opts.print_colour;
     this->force_aspect = opts.force_aspect;
@@ -143,14 +143,14 @@ void TermVideo::BufferRenderer::frame_to_ascii(uchar *frame_pixels, const int wi
 void TermVideo::BufferRenderer::process_video_opencv()
 {
     double fps = this->cap->get(cv::CAP_PROP_FPS);
-    this->video_info.frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
+    this->info.frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
 
     while (1)
     {
         auto start_time = std::chrono::steady_clock::now();
-        while (this->video_info.locked)
+        while (this->info.locked)
             ;
-        this->video_info.locked = true;
+        this->info.locked = true;
 
         cv::Mat frame;
 
@@ -158,8 +158,8 @@ void TermVideo::BufferRenderer::process_video_opencv()
             *this->cap >> frame;
 
         int frame_count = (int)this->cap->get(1);
-        this->video_info.time_pt_ms = (int64_t)this->cap->get(cv::CAP_PROP_POS_MSEC);
-        this->video_info.locked = false;
+        this->info.time_pt_ms = (int64_t)this->cap->get(cv::CAP_PROP_POS_MSEC);
+        this->info.locked = false;
 
         // stop if EOF
         if (frame.empty())
@@ -191,22 +191,22 @@ void TermVideo::BufferRenderer::process_video_ffmpeg()
     int frame_count = 0;
     int skip_count = 0;
 
-    while (!av_read_frame(this->video_info.format_ctx, &packet))
+    while (!av_read_frame(this->info.format_ctx, &packet))
     {
         // skips if stream isn't the main video
-        if (packet.stream_index != this->video_info.stream->index)
+        if (packet.stream_index != this->info.v_stream->index)
         {
             av_packet_unref(&packet);
             continue;
         }
         // skip if there are issues feeding packet into decoder
-        if (avcodec_send_packet(this->video_info.codec_ctx, &packet))
+        if (avcodec_send_packet(this->info.v_codec_ctx, &packet))
         {
             av_packet_unref(&packet);
             continue;
         }
         // skip if there are issues decoding the packet
-        if (avcodec_receive_frame(this->video_info.codec_ctx, frame))
+        if (avcodec_receive_frame(this->info.v_codec_ctx, frame))
         {
             av_frame_unref(frame);
             continue;
@@ -218,8 +218,8 @@ void TermVideo::BufferRenderer::process_video_ffmpeg()
         skip_count = 0;
 
         // keep track of current video time
-        double time_unit = av_q2d(this->video_info.stream->time_base);
-        this->video_info.clock_ms = frame->pts * time_unit * 1000;
+        double time_unit = av_q2d(this->info.v_stream->time_base);
+        this->info.clock_ms = frame->pts * time_unit * 1000;
 
         // reduces video resolution to fit the terminal
         this->frame_downscale_ffmpeg(frame);
@@ -229,7 +229,7 @@ void TermVideo::BufferRenderer::process_video_ffmpeg()
         this->frame_to_ascii(
             frame->data[0],
             frame->width, frame->height,
-            this->video_info.colour_channels);
+            this->info.colour_channels);
 
         av_frame_unref(frame);
         av_packet_unref(&packet);

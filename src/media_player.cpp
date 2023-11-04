@@ -6,9 +6,9 @@ namespace TermVideo
     {
         while (1)
         {
-            std::cout << "Video: " << this->renderer->video_info.clock_ms
-                      << " Audio: " << this->audio_player->audio_info.clock_ms
-                      << " Diff: " << this->renderer->video_info.clock_ms - this->audio_player->audio_info.clock_ms
+            std::cout << "Video: " << this->renderer->info.clock_ms
+                      << " Audio: " << this->audio_player->info.clock_ms
+                      << " Diff: " << this->renderer->info.clock_ms - this->audio_player->info.clock_ms
                       << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(33));
         }
@@ -38,10 +38,10 @@ namespace TermVideo
         res = this->renderer->get_decoder();
         if (res.length() > 0)
             return res;
-#endif
 
         this->audio_player = new AudioPlayer();
         this->audio_player->init_player(opts);
+#endif
 
         return "";
     }
@@ -63,16 +63,16 @@ namespace TermVideo
      */
     void MediaPlayer::seek(bool seek_back)
     {
-        while (this->renderer->video_info.locked)
+        while (this->renderer->info.locked)
             ;
-        this->renderer->video_info.locked = true;
-        while (this->audio_player->audio_info.locked)
+        this->renderer->info.locked = true;
+        while (this->audio_player->info.locked)
             ;
-        this->audio_player->audio_info.locked = true;
+        this->audio_player->info.locked = true;
 
         int64_t rel_time = this->seek_step_ms;
-        int64_t v_time_pt = this->renderer->video_info.clock_ms;
-        int64_t a_time_pt = this->audio_player->audio_info.clock_ms;
+        int64_t v_time_pt = this->renderer->info.clock_ms;
+        int64_t a_time_pt = this->audio_player->info.clock_ms;
         int flags = AVSEEK_FLAG_FRAME;
 
         if (seek_back)
@@ -84,7 +84,7 @@ namespace TermVideo
         this->renderer->seek(v_time_pt + rel_time, flags);
         this->audio_player->seek(a_time_pt + rel_time, flags);
 
-        this->renderer->video_info.locked = false;
-        this->audio_player->audio_info.locked = false;
+        this->renderer->info.locked = false;
+        this->audio_player->info.locked = false;
     }
 }

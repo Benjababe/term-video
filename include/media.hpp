@@ -10,6 +10,7 @@ extern "C"
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
 }
 
 namespace TermVideo
@@ -20,11 +21,17 @@ namespace TermVideo
         int seek_step_ms;
         double clock_ms;
         std::string file_path;
-
-        const AVCodec *decoder;
-        AVStream *stream;
         AVFormatContext *format_ctx;
-        AVCodecContext *codec_ctx;
+
+        const AVCodec *v_decoder;
+        AVStream *v_stream;
+        AVCodecContext *v_codec_ctx;
+        SwsContext *v_sws_ctx;
+
+        const AVCodec *a_decoder;
+        AVStream *a_stream;
+        AVCodecContext *a_codec_ctx;
+        SwrContext *a_swr_ctx;
     };
 }
 

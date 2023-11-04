@@ -20,12 +20,12 @@ TermVideo::Renderer::Renderer() {}
 TermVideo::Renderer::Renderer(Options opts)
 {
 #ifdef __USE_FFMPEG
-    this->video_info.sws_ctx = nullptr;
+    this->info.v_sws_ctx = nullptr;
 #endif
 
-    this->video_info.clock_ms = 0;
-    this->video_info.locked = false;
-    this->video_info.seek_step_ms = opts.seek_step_ms;
+    this->info.clock_ms = 0;
+    this->info.locked = false;
+    this->info.seek_step_ms = opts.seek_step_ms;
     this->frames_to_skip = opts.frames_to_skip;
     this->print_colour = opts.print_colour;
     this->force_aspect = opts.force_aspect;
@@ -180,7 +180,7 @@ void TermVideo::Renderer::frame_downscale_ffmpeg(AVFrame *frame)
     AVPixelFormat output_format = AV_PIX_FMT_BGR24;
 
     // create scaler if doesn't exist or terminal has been resized
-    if (this->video_info.sws_ctx == nullptr || this->term_resized)
+    if (this->info.v_sws_ctx == nullptr || this->term_resized)
     {
         this->padding_x = 0;
         this->padding_y = 0;
@@ -223,10 +223,10 @@ void TermVideo::Renderer::frame_downscale_ffmpeg(AVFrame *frame)
             new_height = this->height;
         }
 
-        this->video_info.colour_channels = 3;
-        this->video_info.new_width = new_width;
-        this->video_info.new_height = new_height;
-        this->video_info.sws_ctx = sws_getContext(
+        this->info.colour_channels = 3;
+        this->info.new_width = new_width;
+        this->info.new_height = new_height;
+        this->info.v_sws_ctx = sws_getContext(
             frame->width, frame->height, (AVPixelFormat)frame->format,
             new_width, new_height, output_format,
             SWS_BILINEAR,
@@ -235,17 +235,17 @@ void TermVideo::Renderer::frame_downscale_ffmpeg(AVFrame *frame)
         this->term_resized = false;
     }
 
-    if (this->video_info.new_width != frame->width && this->video_info.new_height != frame->height)
+    if (this->info.new_width != frame->width && this->info.new_height != frame->height)
     {
         AVFrame *resized_frame = av_frame_alloc();
         resized_frame->format = output_format;
-        resized_frame->width = this->video_info.new_width;
-        resized_frame->height = this->video_info.new_height;
+        resized_frame->width = this->info.new_width;
+        resized_frame->height = this->info.new_height;
 
         if (av_frame_get_buffer(resized_frame, 1) < 0)
             return;
 
-        sws_scale(this->video_info.sws_ctx,
+        sws_scale(this->info.v_sws_ctx,
                   frame->data, frame->linesize,
                   0, frame->height,
                   resized_frame->data, resized_frame->linesize);
@@ -277,7 +277,7 @@ void TermVideo::Renderer::print(std::string ascii_frame)
  */
 void TermVideo::Renderer::wait_for_frame()
 {
-    this->next_frame += std::chrono::nanoseconds(this->video_info.frametime_ns);
+    this->next_frame += std::chrono::nanoseconds(this->info.frametime_ns);
     std::this_thread::sleep_until(this->next_frame);
 }
 
@@ -288,13 +288,13 @@ void TermVideo::Renderer::wait_for_frame()
 void TermVideo::Renderer::process_video_opencv()
 {
     double fps = this->cap->get(cv::CAP_PROP_FPS);
-    this->video_info.frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
+    this->info.frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
 
     while (1)
     {
-        while (this->video_info.locked)
+        while (this->info.locked)
             ;
-        this->video_info.locked = true;
+        this->info.locked = true;
 
         cv::Mat frame;
 
@@ -302,8 +302,8 @@ void TermVideo::Renderer::process_video_opencv()
             *this->cap >> frame;
 
         int frame_count = (int)this->cap->get(1);
-        this->video_info.time_pt_ms = (int64_t)this->cap->get(cv::CAP_PROP_POS_MSEC);
-        this->video_info.locked = false;
+        this->info.time_pt_ms = (int64_t)this->cap->get(cv::CAP_PROP_POS_MSEC);
+        this->info.locked = false;
 
         // stop if EOF
         if (frame.empty())
@@ -338,38 +338,38 @@ void TermVideo::Renderer::process_video_ffmpeg()
 
     int frame_count = 0;
     int skip_count = 0;
-    this->video_info.clock_ms = 0;
+    this->info.clock_ms = 0;
 
     while (1)
     {
-        while (this->video_info.locked)
+        while (this->info.locked)
             ;
-        this->video_info.locked = true;
+        this->info.locked = true;
 
-        int ret = av_read_frame(this->video_info.format_ctx, &packet);
+        int ret = av_read_frame(this->info.format_ctx, &packet);
         if (ret < 0)
             break;
 
         // skips if stream isn't the main video
         // or if there are errors with decoding the packet
         // or just a general frame skip for optimisation
-        if (packet.stream_index != this->video_info.stream->index ||
-            avcodec_send_packet(this->video_info.codec_ctx, &packet) ||
-            avcodec_receive_frame(this->video_info.codec_ctx, frame) ||
+        if (packet.stream_index != this->info.v_stream->index ||
+            avcodec_send_packet(this->info.v_codec_ctx, &packet) ||
+            avcodec_receive_frame(this->info.v_codec_ctx, frame) ||
             skip_count++ < this->frames_to_skip)
         {
             av_packet_unref(&packet);
             av_frame_unref(frame);
-            this->video_info.locked = false;
+            this->info.locked = false;
             continue;
         }
 
-        this->video_info.locked = false;
+        this->info.locked = false;
         skip_count = 0;
 
         // keep track of current video time
-        auto time_unit = av_q2d(this->video_info.stream->time_base);
-        this->video_info.clock_ms = frame->best_effort_timestamp * time_unit * 1000;
+        auto time_unit = av_q2d(this->info.v_stream->time_base);
+        this->info.clock_ms = frame->best_effort_timestamp * time_unit * 1000;
 
         // reduces video resolution to fit the terminal
         this->frame_downscale_ffmpeg(frame);
@@ -380,7 +380,7 @@ void TermVideo::Renderer::process_video_ffmpeg()
             ascii_frame,
             frame->data[0],
             frame->width, frame->height,
-            this->video_info.colour_channels);
+            this->info.colour_channels);
 
         // properly print output frame
         this->print(ascii_frame);
@@ -403,19 +403,19 @@ void TermVideo::Renderer::seek(int64_t time_pt_ms, int flags)
     this->cap->set(cv::CAP_PROP_POS_MSEC, time_pt_ms);
 #elif defined(__USE_FFMPEG)
 
-    int64_t time_u = this->video_info.stream->time_base.den;
+    int64_t time_u = this->info.v_stream->time_base.den;
     int64_t timestamp = (time_pt_ms * time_u) / 1000;
 
     if (timestamp < 0)
         timestamp = 0;
 
-    int ret = av_seek_frame(this->video_info.format_ctx,
-                            this->video_info.stream->index,
+    int ret = av_seek_frame(this->info.format_ctx,
+                            this->info.v_stream->index,
                             timestamp,
                             flags);
-    avcodec_flush_buffers(this->video_info.codec_ctx);
+    avcodec_flush_buffers(this->info.v_codec_ctx);
 
-    this->video_info.clock_ms = time_pt_ms;
+    this->info.clock_ms = time_pt_ms;
 #endif
 }
 
@@ -448,13 +448,13 @@ void TermVideo::Renderer::init_renderer()
 std::string TermVideo::Renderer::get_decoder()
 {
     // Sets frametime to know how long to delay per frame
-    double fps = av_q2d(this->video_info.stream->r_frame_rate);
-    this->video_info.frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
+    double fps = av_q2d(this->info.v_stream->r_frame_rate);
+    this->info.frametime_ns = (int64)(1e9 / fps) * (1 + this->frames_to_skip);
 
-    this->video_info.codec_ctx = avcodec_alloc_context3(this->video_info.decoder);
-    avcodec_parameters_to_context(this->video_info.codec_ctx, this->video_info.stream->codecpar);
+    this->info.v_codec_ctx = avcodec_alloc_context3(this->info.v_decoder);
+    avcodec_parameters_to_context(this->info.v_codec_ctx, this->info.v_stream->codecpar);
 
-    int ret = avcodec_open2(this->video_info.codec_ctx, this->video_info.decoder, nullptr);
+    int ret = avcodec_open2(this->info.v_codec_ctx, this->info.v_decoder, nullptr);
     if (ret < 0)
         return "Decoder could not be opened";
 
@@ -467,26 +467,26 @@ std::string TermVideo::Renderer::get_decoder()
  */
 std::string TermVideo::Renderer::open_file()
 {
-    this->video_info.format_ctx = nullptr;
-    int ret = avformat_open_input(&this->video_info.format_ctx, this->filename.c_str(), nullptr, nullptr);
+    this->info.format_ctx = nullptr;
+    int ret = avformat_open_input(&this->info.format_ctx, this->filename.c_str(), nullptr, nullptr);
     if (ret < 0)
         return "Unable to open media file!";
 
-    ret = avformat_find_stream_info(this->video_info.format_ctx, nullptr);
+    ret = avformat_find_stream_info(this->info.format_ctx, nullptr);
     if (ret < 0)
         return "Unable to find stream info!";
 
     int stream_index = av_find_best_stream(
-        this->video_info.format_ctx,
+        this->info.format_ctx,
         AVMEDIA_TYPE_VIDEO,
         -1,
         -1,
-        &this->video_info.decoder,
+        &this->info.v_decoder,
         0);
     if (stream_index < 0)
         return "No audio streams found in file!";
 
-    this->video_info.stream = this->video_info.format_ctx->streams[stream_index];
+    this->info.v_stream = this->info.format_ctx->streams[stream_index];
     return "";
 }
 #endif

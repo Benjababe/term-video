@@ -5,6 +5,7 @@
 
 #include "audio_player.hpp"
 #include "buffer_renderer.hpp"
+#include "media.hpp"
 #include "renderer.hpp"
 
 namespace TermVideo

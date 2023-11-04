@@ -23,7 +23,6 @@ namespace TermVideo
 {
     struct AudioInfo : MediaInfo
     {
-        SwrContext *swr_ctx;
     };
 
     class AudioPlayer
@@ -39,7 +38,7 @@ namespace TermVideo
         void init_output_device();
 
     public:
-        AudioInfo audio_info;
+        AudioInfo info;
 
         AudioPlayer();
         ~AudioPlayer();
