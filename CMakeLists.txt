@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 4.0)
 
 # Edit in include/media.hpp as well
 # set(MEDIA_HANDLER opencv)

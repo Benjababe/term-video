@@ -38,10 +38,10 @@ void TermVideo::Optimiser::set_colour_threshold(uchar col_threshold)
  * @param r Redness value (0-255)
  * @param g Greenness value (0-255)
  * @param b Blueness value (0-255)
- * @param c ASCII character to be printed
+ * @param c Character to be printed
  * @return bool Whether to use ANSI colour coding
  */
-bool TermVideo::Optimiser::should_apply_ansi_col(uchar r, uchar g, uchar b, uchar c)
+bool TermVideo::Optimiser::should_apply_ansi_col(uchar r, uchar g, uchar b, std::string c)
 {
     uchar diff_r = abs(this->prev_r - r);
     uchar diff_g = abs(this->prev_g - g);
@@ -49,6 +49,6 @@ bool TermVideo::Optimiser::should_apply_ansi_col(uchar r, uchar g, uchar b, ucha
 
     // apply ansi colour if pixel is outside of threshold range of previous pixel
     // and character is not a blank
-    bool apply_ansi = (diff_r > this->col_threshold && diff_g > this->col_threshold && diff_b > this->col_threshold) && (c != ' ');
+    bool apply_ansi = (diff_r > this->col_threshold && diff_g > this->col_threshold && diff_b > this->col_threshold) && (c != " ");
     return apply_ansi;
 }

@@ -78,20 +78,20 @@ int TermVideo::get_ncurses_col_index(uchar r, uchar g, uchar b, short step)
  * @param c Character to be encoded
  * @return std::string ANSI colour encoded character
  */
-std::string TermVideo::get_char_ansi_col(uchar r, uchar g, uchar b, char c)
+std::string TermVideo::get_char_ansi_col(uchar r, uchar g, uchar b, std::string c)
 {
-    if (c != ' ')
+    if (c != " ")
     {
-        // max length is 24 for single character & RGB encoding
-        char str_out[24];
+        // max length is 23 for single character & RGB encoding
+        char str_out[23];
 
 #if _WINDLL
-        sprintf_s(str_out, "\033[38;2;%d;%d;%dm%c", r, g, b, c);
+        sprintf_s(str_out, "\033[38;2;%d;%d;%dm%s", r, g, b, c);
 #else
-        snprintf(str_out, sizeof(str_out), "\033[38;2;%d;%d;%dm%c", r, g, b, c);
+        snprintf(str_out, sizeof(str_out), "\033[38;2;%d;%d;%dm", r, g, b);
 #endif
 
-        return std::string(str_out);
+        return std::string(str_out) + c;
     }
 
     else

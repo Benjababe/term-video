@@ -18,7 +18,7 @@ namespace TermVideo
         Optimiser(uchar);
         void set_prev_colours(uchar r, uchar g, uchar b);
         void set_colour_threshold(uchar col_threshold);
-        bool should_apply_ansi_col(uchar r, uchar g, uchar b, uchar c);
+        bool should_apply_ansi_col(uchar r, uchar g, uchar b, std::string c);
     };
 }
 

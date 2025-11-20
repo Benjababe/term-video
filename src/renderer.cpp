@@ -103,13 +103,12 @@ void TermVideo::Renderer::frame_to_ascii(
             uchar pixel_b = frame_pixels[index],
                   pixel_g = frame_pixels[index + 1],
                   pixel_r = frame_pixels[index + 2];
-
-            char ascii = this->pixel_to_ascii(pixel_r, pixel_g, pixel_b);
+            std::string block_char = "█";
 
             // only uses ANSI colours when necessary
-            if (this->print_colour && this->optimiser.should_apply_ansi_col(pixel_r, pixel_g, pixel_b, ascii))
+            if (this->print_colour && this->optimiser.should_apply_ansi_col(pixel_r, pixel_g, pixel_b, block_char))
             {
-                std::string ascii_col = get_char_ansi_col(pixel_r, pixel_g, pixel_b, ascii);
+                std::string ascii_col = get_char_ansi_col(pixel_r, pixel_g, pixel_b, block_char);
                 ascii_output += ascii_col;
 
                 // updates previous set of pixel colours
@@ -117,7 +116,7 @@ void TermVideo::Renderer::frame_to_ascii(
             }
             else
             {
-                ascii_output += ascii;
+                ascii_output += block_char;
             }
         }
 
@@ -429,6 +428,10 @@ void TermVideo::Renderer::init_renderer()
 
 #ifdef __USE_OPENCV
     cv::utils::logging::setLogLevel(cv::utils::logging::LogLevel::LOG_LEVEL_SILENT);
+#endif
+
+#if defined(_WIN32)
+    SetConsoleOutputCP(CP_UTF8);
 #endif
 
 #if defined(__linux__)
