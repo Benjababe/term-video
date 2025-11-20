@@ -43,7 +43,7 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
                 return return_arg_missing_value(arg);
         }
 
-        else if (arg == "-ct" || arg == "--color-threshold" || arg == "--colour-threshold")
+        else if (arg == "-ct" || arg == "--threshold" || arg == "--colour-threshold")
         {
             if (i + 1 < argc)
                 opts.col_threshold = std::stoi(argv[++i]);
