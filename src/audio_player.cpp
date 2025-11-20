@@ -29,7 +29,7 @@ namespace TermVideo
                 AVDictionaryEntry *lang = av_dict_get(stream->metadata, "language", NULL, 0);
                 if (!strncmp(lang->value, audio_language.c_str(), 3))
                 {
-                    this->info->a_stream = this->info->a_format_ctx->streams[i];
+                    this->info->a_stream = stream;
                     return "";
                 }
             }
