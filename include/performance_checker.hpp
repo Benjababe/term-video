@@ -21,6 +21,7 @@ namespace TermVideo
     {
     public:
         PerformanceChecker();
+        double last_frame_time;
         void start_frame_time();
         void end_frame_time();
         void add_wait_time(int64);

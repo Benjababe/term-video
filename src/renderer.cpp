@@ -1,5 +1,7 @@
 #include "renderer.hpp"
 
+std::string block_char = "█";
+
 /**
  * @brief Default Renderer constructor
  *
@@ -31,6 +33,7 @@ TermVideo::Renderer::Renderer(MediaInfo *info, Options opts)
     this->print_colour = opts.print_colour;
     this->force_aspect = opts.force_aspect;
     this->force_avg_luminance = opts.force_avg_lumi;
+    this->display_frametime = opts.display_frametime;
     this->col_threshold = opts.col_threshold;
     this->filename = opts.filename;
     this->char_set = opts.char_set;
@@ -84,6 +87,8 @@ void TermVideo::Renderer::frame_to_ascii(
     const int height,
     const int channels)
 {
+    int td_len = 0;
+
     ascii_output = "";
     this->perf_checker.start_frame_time();
 
@@ -96,14 +101,23 @@ void TermVideo::Renderer::frame_to_ascii(
         // left padding to fit aspect ratio
         if (this->force_aspect)
             ascii_output += std::string(this->padding_x, ' ');
+        if (row == 0 && this->display_frametime)
+        {
+            std::string time_display = std::format("{:.3f}ms", this->perf_checker.last_frame_time);
+            std::string frame_time_str = std::format("\033[38;2;255;255;255m{:.3f}ms", this->perf_checker.last_frame_time);
+            ascii_output += frame_time_str;
+            td_len = time_display.length();
+        }
 
         for (int col = 0; col < width; col++)
         {
+            if (row == 0 && col < td_len)
+                continue;
+
             ULONG index = channels * (row * width + col);
             uchar pixel_b = frame_pixels[index],
                   pixel_g = frame_pixels[index + 1],
                   pixel_r = frame_pixels[index + 2];
-            std::string block_char = "█";
 
             // only uses ANSI colours when necessary
             if (this->print_colour && this->optimiser.should_apply_ansi_col(pixel_r, pixel_g, pixel_b, block_char))

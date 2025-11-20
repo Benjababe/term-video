@@ -93,6 +93,11 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
         {
             opts.force_avg_lumi = true;
         }
+
+        else if (arg == "-ft" || arg == "--display-frametime")
+        {
+            opts.display_frametime = true;
+        }
     }
 
     if (opts.filename.length() == 0)

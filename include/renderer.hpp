@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <format>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -89,6 +90,7 @@ namespace TermVideo
         bool ready;
         bool term_resized;
         bool force_avg_luminance;
+        bool display_frametime;
         uchar col_threshold;
         uchar prev_r, prev_g, prev_b;
         std::string filename, char_set;
