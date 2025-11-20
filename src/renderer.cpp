@@ -315,7 +315,7 @@ void TermVideo::Renderer::process_video_opencv()
             *this->cap >> frame;
 
         int frame_count = static_cast<int>(this->cap->get(1));
-        this->info->time_pt_ms = static_cast<int64_t>this->cap->get(cv::CAP_PROP_POS_MSEC));
+        this->info->time_pt_ms = static_cast<int64_t>(this->cap->get(cv::CAP_PROP_POS_MSEC));
 
         // stop if EOF
         if (frame.empty())
@@ -409,7 +409,7 @@ void TermVideo::Renderer::process_video_ffmpeg()
 void TermVideo::Renderer::seek(Seek seek_info)
 {
 #if defined(__USE_OPENCV)
-    this->cap->set(cv::CAP_PROP_POS_MSEC, time_pt_ms);
+    this->cap->set(cv::CAP_PROP_POS_MSEC, this->info->time_pt_ms);
 #elif defined(__USE_FFMPEG)
 
     int64_t time_u = this->info->v_stream->time_base.den;

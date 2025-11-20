@@ -54,6 +54,7 @@ namespace TermVideo
         int colour_channels;
         int new_width;
         int new_height;
+        int64_t time_pt_ms;
     };
 
     class Renderer

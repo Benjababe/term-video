@@ -1,4 +1,5 @@
 #define __USE_FFMPEG
+// #define __USE_OPENCV
 
 #ifndef MEDIA_H
 #define MEDIA_H

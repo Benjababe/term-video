@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 4.0)
 # set(MEDIA_HANDLER opencv)
 set(MEDIA_HANDLER ffmpeg)
 
+#[[
+]]
 set(PROJECT_NAME term_video_${MEDIA_HANDLER})
 project(${PROJECT_NAME} CXX)
 set(CMAKE_CXX_STANDARD 20)

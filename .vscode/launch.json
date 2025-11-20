@@ -47,7 +47,7 @@
                 "5000",
                 "-ft",
                 "--file",
-                "./data/roman.mkv"
+                "./data/lucky.mp4"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
