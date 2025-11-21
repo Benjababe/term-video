@@ -98,6 +98,11 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
         {
             opts.display_frametime = true;
         }
+
+        else if (arg == "-as" || arg == "--ascii")
+        {
+            opts.use_ascii = true;
+        }
     }
 
     if (opts.filename.length() == 0)

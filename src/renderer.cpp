@@ -37,6 +37,7 @@ TermVideo::Renderer::Renderer(MediaInfo *info, Options opts)
     this->col_threshold = opts.col_threshold;
     this->filename = opts.filename;
     this->char_set = opts.char_set;
+    this->use_ascii = opts.use_ascii;
     this->padding_x = this->padding_y = 0;
     this->prev_r = this->prev_g = this->prev_b = 255;
     this->next_frame = std::chrono::steady_clock::now();
@@ -88,9 +89,7 @@ void TermVideo::Renderer::frame_to_ascii(
     const int channels)
 {
     int td_len = 0;
-
     ascii_output = "";
-    this->perf_checker.start_frame_time();
 
     // add top padding to fit aspect ratio
     for (int i = 0; i < this->padding_y; i++)
@@ -119,10 +118,17 @@ void TermVideo::Renderer::frame_to_ascii(
                   pixel_g = frame_pixels[index + 1],
                   pixel_r = frame_pixels[index + 2];
 
-            // only uses ANSI colours when necessary
-            if (this->print_colour && this->optimiser.should_apply_ansi_col(pixel_r, pixel_g, pixel_b, block_char))
+            std::string coord_char = block_char;
+            if (this->use_ascii)
             {
-                std::string ascii_col = get_char_ansi_col(pixel_r, pixel_g, pixel_b, block_char);
+                char ascii_char = this->pixel_to_ascii(pixel_r, pixel_g, pixel_b);
+                coord_char = std::string(1, ascii_char);
+            }
+
+            // only uses ANSI colours when necessary
+            if (this->print_colour && this->optimiser.should_apply_ansi_col(pixel_r, pixel_g, pixel_b, coord_char))
+            {
+                std::string ascii_col = get_char_ansi_col(pixel_r, pixel_g, pixel_b, coord_char);
                 ascii_output += ascii_col;
 
                 // updates previous set of pixel colours
@@ -130,7 +136,7 @@ void TermVideo::Renderer::frame_to_ascii(
             }
             else
             {
-                ascii_output += block_char;
+                ascii_output += coord_char;
             }
         }
 
@@ -145,8 +151,6 @@ void TermVideo::Renderer::frame_to_ascii(
     // add bottom padding to fit aspect ratio
     for (int i = 0; i < (this->height - this->padding_y - height); i++)
         ascii_output += std::string(this->width, ' ');
-
-    this->perf_checker.end_frame_time();
 }
 
 #if defined(__USE_OPENCV)
@@ -354,6 +358,8 @@ void TermVideo::Renderer::process_video_ffmpeg()
 
     while (1)
     {
+        this->perf_checker.start_frame_time();
+
         if (this->info->v_seek.req)
             this->seek(this->info->v_seek);
 
@@ -401,6 +407,7 @@ void TermVideo::Renderer::process_video_ffmpeg()
         if (++frame_count % FETCH_TERMINAL_INTERVAL == 0)
             get_terminal_size(this->width, this->height, this->term_resized);
 
+        this->perf_checker.end_frame_time();
         this->wait_for_frame();
     }
 }

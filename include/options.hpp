@@ -20,6 +20,7 @@ namespace TermVideo
         bool force_avg_lumi = false;
         bool use_audio = true;
         bool display_frametime = false;
+        bool use_ascii = false;
     };
 
     int parse_arguments(Options &, int, char **);

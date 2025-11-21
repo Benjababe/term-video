@@ -8,14 +8,19 @@
             "program": "${command:cmake.launchTargetPath}",
             "args": [
                 "--colour",
+                "--force-aspect",
                 "--threshold",
-                "8",
+                "0",
                 "--skip-frames",
                 "0",
                 "--audio-language",
                 "jpn",
+                "--seek-step",
+                "5000",
+                "-ft",
+                // "-as",
                 "--file",
-                "./data/hitotsu.mp4"
+                "./data/lucky.mp4"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -46,6 +51,7 @@
                 "--seek-step",
                 "5000",
                 "-ft",
+                // "-as",
                 "--file",
                 "./data/lucky.mp4"
             ],
