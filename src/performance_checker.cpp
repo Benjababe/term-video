@@ -3,8 +3,8 @@
 TermVideo::PerformanceChecker::PerformanceChecker()
 {
     this->frame_count = 0;
-    this->last_frame_time = 0;
-    this->frame_time_total = 0;
+    this->last_frame_time_milli = 0;
+    this->frame_time_milli_total = 0;
 }
 
 void TermVideo::PerformanceChecker::start_frame_time()
@@ -19,8 +19,8 @@ void TermVideo::PerformanceChecker::end_frame_time()
     auto frame_time_milli = static_cast<double>(frame_time_micro.count()) / 1000.0;
 
     this->frame_count++;
-    this->last_frame_time = frame_time_milli;
-    this->frame_time_total += frame_time_milli;
+    this->last_frame_time_milli = frame_time_milli;
+    this->frame_time_milli_total += frame_time_milli;
 }
 
 void TermVideo::PerformanceChecker::add_wait_time(int64 wait_time)
@@ -28,9 +28,9 @@ void TermVideo::PerformanceChecker::add_wait_time(int64 wait_time)
     this->wait_time_total += wait_time;
 }
 
-double TermVideo::PerformanceChecker::get_avg_frame_time()
+double TermVideo::PerformanceChecker::get_avg_frame_time_milli()
 {
-    return this->frame_time_total / this->frame_count;
+    return this->frame_time_milli_total / this->frame_count;
 }
 
 int64 TermVideo::PerformanceChecker::get_avg_wait_time()

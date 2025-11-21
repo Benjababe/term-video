@@ -320,7 +320,7 @@ void TermVideo::BufferRenderer::start_renderer()
 #endif
 
     // prints performance after finishing video
-    double avg_time = this->perf_checker.get_avg_frame_time();
+    double avg_time = this->perf_checker.get_avg_frame_time_milli();
     std::cout << "Average frame time: " << avg_time << "ms" << std::endl;
 }
 

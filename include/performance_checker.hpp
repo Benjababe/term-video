@@ -21,16 +21,16 @@ namespace TermVideo
     {
     public:
         PerformanceChecker();
-        double last_frame_time;
+        double last_frame_time_milli;
         void start_frame_time();
         void end_frame_time();
         void add_wait_time(int64);
-        double get_avg_frame_time();
+        double get_avg_frame_time_milli();
         int64 get_avg_wait_time();
 
     private:
         int frame_count;
-        double frame_time_total;
+        double frame_time_milli_total;
         int64 wait_time_total;
         std::chrono::_V2::system_clock::time_point start_time;
     };

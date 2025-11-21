@@ -102,8 +102,8 @@ void TermVideo::Renderer::frame_to_ascii(
             ascii_output += std::string(this->padding_x, ' ');
         if (row == 0 && this->display_frametime)
         {
-            std::string time_display = std::format("{:.3f}ms", this->perf_checker.last_frame_time);
-            std::string frame_time_str = std::format("\033[38;2;255;255;255m{:.3f}ms", this->perf_checker.last_frame_time);
+            std::string time_display = std::format("{:.3f}ms", this->perf_checker.last_frame_time_milli);
+            std::string frame_time_str = std::format("\033[38;2;255;255;255m{:.3f}ms", this->perf_checker.last_frame_time_milli);
             ascii_output += frame_time_str;
             td_len = time_display.length();
         }
@@ -287,10 +287,11 @@ void TermVideo::Renderer::print(std::string ascii_frame)
 #endif
 
     // https://stackoverflow.com/questions/51149880/fprintf-fputs-vs-cout-performance-for-large-strings
-    if (ascii_frame.length() <= 30000)
+    auto frame_len = ascii_frame.length();
+    if (frame_len <= 30000)
         fputs(ascii_frame.c_str(), stdout);
     else
-        fwrite(ascii_frame.c_str(), ascii_frame.length(), 1, stdout);
+        fwrite(ascii_frame.c_str(), frame_len, 1, stdout);
 }
 
 /**
@@ -531,6 +532,6 @@ void TermVideo::Renderer::start_renderer()
 #endif
 
     // prints performance after finishing video
-    double avg_time = this->perf_checker.get_avg_frame_time();
+    double avg_time = this->perf_checker.get_avg_frame_time_milli();
     std::cout << "Average frame time: " << avg_time << "ms" << std::endl;
 }
