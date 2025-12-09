@@ -23,7 +23,7 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
         {
             if (opts.audio_language.length() > 0)
             {
-                std::cerr << "Setting \"" << arg << "\" when audio language is provided" << std::endl;
+                std::cerr << "Setting \"" << arg << "\" cannot be used when audio language is provided" << std::endl;
                 return -1;
             }
 
@@ -34,7 +34,7 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
         {
             if (!opts.use_audio)
             {
-                std::cerr << "Setting \"" << arg << "\" when audio is disabled" << std::endl;
+                std::cerr << "Setting \"" << arg << "\" cannot be used when audio is disabled" << std::endl;
                 return -1;
             }
             else if (i + 1 < argc)
@@ -102,6 +102,11 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
         else if (arg == "-as" || arg == "--ascii")
         {
             opts.use_ascii = true;
+        }
+
+        else if (arg == "-nfs" || arg == "--no-frame-sync")
+        {
+            opts.disable_frame_sync = true;
         }
     }
 

@@ -93,6 +93,7 @@ namespace TermVideo
         bool force_avg_luminance;
         bool display_frametime;
         bool use_ascii;
+        bool disable_frame_sync;
         uchar col_threshold;
         uchar prev_r, prev_g, prev_b;
         std::string filename, char_set;

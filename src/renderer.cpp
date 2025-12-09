@@ -38,11 +38,14 @@ TermVideo::Renderer::Renderer(MediaInfo *info, Options opts)
     this->filename = opts.filename;
     this->char_set = opts.char_set;
     this->use_ascii = opts.use_ascii;
+    this->disable_frame_sync = opts.disable_frame_sync;
+
     this->padding_x = this->padding_y = 0;
     this->prev_r = this->prev_g = this->prev_b = 255;
     this->next_frame = std::chrono::steady_clock::now();
     this->optimiser = Optimiser(col_threshold);
     this->perf_checker = PerformanceChecker();
+
     this->ready = false;
     this->term_resized = false;
 }
@@ -299,6 +302,9 @@ void TermVideo::Renderer::print(std::string ascii_frame)
  */
 void TermVideo::Renderer::wait_for_frame()
 {
+    if (this->disable_frame_sync)
+        return;
+
     this->next_frame += std::chrono::nanoseconds(this->info->frametime_ns);
     std::this_thread::sleep_until(this->next_frame);
 }
