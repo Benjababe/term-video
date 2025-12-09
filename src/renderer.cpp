@@ -513,7 +513,7 @@ std::string TermVideo::Renderer::open_file()
         &this->info->v_decoder,
         0);
     if (stream_index < 0)
-        return "No audio streams found in file!";
+        return "No video streams found in file!";
 
     this->info->v_stream = this->info->v_format_ctx->streams[stream_index];
     return "";
