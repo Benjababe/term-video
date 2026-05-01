@@ -11,11 +11,17 @@
  * @param filename Video file to be converted into ASCII
  * @param char_set Character set to be used for ASCII conversion
  */
+TermVideo::BufferRenderer::~BufferRenderer()
+{
+#if defined(_WIN32)
+    delete[] this->buffer;
+#endif
+}
+
 TermVideo::BufferRenderer::BufferRenderer(MediaInfo *info, Options opts)
 {
     this->info = static_cast<VideoInfo *>(info);
     this->info->v_clock_ms = 0;
-    this->info->seek_step_ms = opts.seek_step_ms;
     this->info->seek_step_ms = opts.seek_step_ms;
 
 #ifdef __USE_FFMPEG

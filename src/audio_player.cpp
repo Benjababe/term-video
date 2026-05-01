@@ -12,6 +12,14 @@ namespace TermVideo
 
     AudioPlayer::~AudioPlayer()
     {
+        if (this->a_device)
+            ao_close(this->a_device);
+        if (this->info)
+        {
+            swr_free(&this->info->a_swr_ctx);
+            avcodec_free_context(&this->info->a_codec_ctx);
+            avformat_close_input(&this->info->a_format_ctx);
+        }
         ao_shutdown();
     }
 

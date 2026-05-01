@@ -34,6 +34,7 @@ namespace TermVideo
     {
     public:
         BufferRenderer(MediaInfo *, Options);
+        ~BufferRenderer() override;
         void init_renderer() override;
         void start_renderer() override;
 

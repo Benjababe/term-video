@@ -18,10 +18,9 @@ namespace TermVideo
         AudioPlayer *audio_player;
         Renderer *renderer;
 
-        void time_check();
-
     public:
         MediaPlayer();
+        ~MediaPlayer();
         std::string init_player(Options);
         void play_file();
         void seek(bool);
