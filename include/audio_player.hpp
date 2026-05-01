@@ -31,6 +31,8 @@ namespace TermVideo
         bool use_audio;
         ao_sample_format ao_s_format;
         ao_device *a_device;
+        int a_sample_rate;
+        int a_channels;
 
         std::string get_audio_stream(std::string);
         std::string get_decoder(const AVCodec **);

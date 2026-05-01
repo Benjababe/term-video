@@ -115,6 +115,9 @@ namespace TermVideo
         this->ao_s_format.channels = this->info->a_codec_ctx->ch_layout.nb_channels;
         this->ao_s_format.rate = this->info->a_codec_ctx->sample_rate;
 
+        this->a_sample_rate = this->info->a_codec_ctx->sample_rate;
+        this->a_channels = this->info->a_codec_ctx->ch_layout.nb_channels;
+
         this->a_device = ao_open_live(driver_id, &this->ao_s_format, NULL);
     }
 
@@ -179,10 +182,6 @@ namespace TermVideo
             resampled_frame->ch_layout = frame->ch_layout;
             resampled_frame->format = SAMPLE_FORMAT;
 
-            // keep track of current audio time
-            auto time_unit = av_q2d(this->info->a_stream->time_base);
-            this->info->a_clock_ms = frame->best_effort_timestamp * time_unit * 1000;
-
             ret = swr_convert_frame(this->info->a_swr_ctx, resampled_frame, frame);
             if (ret < 0)
             {
@@ -192,6 +191,10 @@ namespace TermVideo
                 av_packet_unref(packet);
                 continue;
             }
+
+            // keep track of current audio time (running sum for monotonic clock)
+            int64_t frame_duration = (1000.0 * resampled_frame->nb_samples) / this->a_sample_rate;
+            this->info->a_clock_ms += frame_duration;
 
             int buf_size = av_samples_get_buffer_size(nullptr,
                                                       this->info->a_codec_ctx->ch_layout.nb_channels,

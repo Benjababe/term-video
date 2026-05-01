@@ -307,8 +307,21 @@ void TermVideo::Renderer::wait_for_frame()
     if (this->disable_frame_sync)
         return;
 
-    this->next_frame += std::chrono::nanoseconds(this->info->frametime_ns);
-    std::this_thread::sleep_until(this->next_frame);
+    // Use audio clock as master when audio is enabled
+    if (this->info->a_clock_ms > 0)
+    {
+        int64_t ahead_ms = this->info->v_clock_ms - this->info->a_clock_ms;
+        if (ahead_ms > 100)
+            std::this_thread::sleep_for(std::chrono::milliseconds(ahead_ms / 2));
+        else if (ahead_ms > 0)
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        // when behind or at audio, don't sleep — process immediately
+    }
+    else
+    {
+        this->next_frame += std::chrono::nanoseconds(this->info->frametime_ns);
+        std::this_thread::sleep_until(this->next_frame);
+    }
 }
 
 #if defined(__USE_OPENCV)
