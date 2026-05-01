@@ -61,6 +61,7 @@ namespace TermVideo
     {
     public:
         Renderer();
+        virtual ~Renderer();
         Renderer(MediaInfo *, Options);
         virtual void init_renderer();
         virtual void start_renderer();
