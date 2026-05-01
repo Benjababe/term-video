@@ -5,18 +5,15 @@ namespace TermVideo
     MediaPlayer::MediaPlayer()
     {
         this->info = new MediaInfo();
+        this->audio_player = nullptr;
+        this->renderer = nullptr;
     }
 
-    void MediaPlayer::time_check()
+    MediaPlayer::~MediaPlayer()
     {
-        while (1)
-        {
-            std::cout << "Video: " << this->info->v_clock_ms
-                      << " Audio: " << this->info->a_clock_ms
-                      << " Diff: " << this->info->v_clock_ms - this->info->a_clock_ms
-                      << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(33));
-        }
+        delete this->renderer;
+        delete this->audio_player;
+        delete this->info;
     }
 
     /**
@@ -53,13 +50,11 @@ namespace TermVideo
 
     void MediaPlayer::play_file()
     {
-        std::thread video_thread(&Renderer::start_renderer, this->renderer);
+    std::thread video_thread(&Renderer::start_renderer, this->renderer);
         std::thread audio_thread(&AudioPlayer::play_file, this->audio_player);
-        // std::thread time_thread(&MediaPlayer::time_check, this);
 
         video_thread.join();
         audio_thread.join();
-        // time_thread.join();
     }
 
     /**
