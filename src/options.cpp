@@ -73,7 +73,7 @@ int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
                 return return_arg_missing_value(arg);
         }
 
-        else if (arg == "-c" || arg == "color" || arg == "--colour")
+        else if (arg == "-c" || arg == "--color" || arg == "--colour")
         {
             opts.print_colour = true;
             opts.char_set = ascii_colour_chars;
