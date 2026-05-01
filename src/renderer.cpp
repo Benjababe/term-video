@@ -8,6 +8,8 @@ std::string block_char = "█";
  */
 TermVideo::Renderer::Renderer() {}
 
+TermVideo::Renderer::~Renderer() {}
+
 /**
  * @brief Construct a new Renderer:: Renderer object
  *

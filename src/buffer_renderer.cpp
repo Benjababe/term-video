@@ -33,10 +33,13 @@ TermVideo::BufferRenderer::BufferRenderer(MediaInfo *info, Options opts)
     this->force_aspect = opts.force_aspect;
     this->filename = opts.filename;
     this->char_set = opts.char_set;
+    this->disable_frame_sync = opts.disable_frame_sync;
+
     this->padding_x = this->padding_y = 0;
     this->prev_r = this->prev_g = this->prev_b = 255;
     this->next_frame = std::chrono::steady_clock::now();
     this->perf_checker = PerformanceChecker();
+
     this->ready = false;
 #if defined(__linux__)
     this->color_step_no = 1;
@@ -196,6 +199,9 @@ void TermVideo::BufferRenderer::process_video_ffmpeg()
 
     while (!av_read_frame(this->info->v_format_ctx, &packet))
     {
+        if (this->info->v_seek.req)
+            this->seek(this->info->v_seek);
+
         // skips if stream isn't the main video
         if (packet.stream_index != this->info->v_stream->index)
         {
@@ -241,6 +247,7 @@ void TermVideo::BufferRenderer::process_video_ffmpeg()
         if (frame_count % FETCH_TERMINAL_INTERVAL == 0)
             this->check_resize();
 
+        this->perf_checker.end_frame_time();
         this->wait_for_frame();
     }
 }

@@ -1,5 +1,23 @@
 #include "options.hpp"
 
+TermVideo::Options::Options()
+    : filename(),
+      char_set(),
+      audio_language(),
+      col_threshold(0),
+      frames_to_skip(0),
+      seek_step_ms(5000),
+      print_colour(false),
+      force_aspect(false),
+      use_buffer(false),
+      force_avg_lumi(false),
+      use_audio(true),
+      display_frametime(false),
+      use_ascii(false),
+      disable_frame_sync(false)
+{
+}
+
 int TermVideo::parse_arguments(TermVideo::Options &opts, int argc, char **argv)
 {
     opts.char_set = "@&%QWNM0gB$#DR8mHXKAUbGOpV4d9h6PkqwSE2]ayjxY5Zoen[ult13If}C{iF|(7J)vTLs?z/*cr!+<>;=^,_:'-.` ";

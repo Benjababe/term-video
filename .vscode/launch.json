@@ -38,7 +38,7 @@
             "request": "launch",
             "program": "${command:cmake.launchTargetPath}",
             "args": [
-                "-nfs",
+                // "-nfs",
                 "--colour",
                 // "--buffer",
                 "--force-aspect",
